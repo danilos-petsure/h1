@@ -1,0 +1,2362 @@
+{
+  "version": {
+    "major": 2,
+    "minor": 0,
+    "patch": 0
+  },
+  "title": "Medical assessment- as is",
+  "metamodel": {
+    "laneRoles": [
+      {
+        "id": "services",
+        "name": "Services"
+      },
+      {
+        "id": "functions",
+        "name": "Functions"
+      },
+      {
+        "id": "events",
+        "name": "Events"
+      },
+      {
+        "id": "data",
+        "name": "Data"
+      }
+    ],
+    "nodeTypes": [
+      {
+        "id": "service",
+        "name": "Service",
+        "laneRole": "services",
+        "shape": "stadium",
+        "icon": "socket",
+        "fillColor": "#d3ecea",
+        "borderColor": "#2a827d",
+        "textColor": "#0f2f2d"
+      },
+      {
+        "id": "function",
+        "name": "Function",
+        "laneRole": "functions",
+        "shape": "rounded",
+        "icon": "chevron",
+        "fillColor": "#8ed3ce",
+        "borderColor": "#1f6f6b",
+        "textColor": "#0a2c2a"
+      },
+      {
+        "id": "event",
+        "name": "Event",
+        "laneRole": "events",
+        "shape": "stadium",
+        "icon": "bolt",
+        "fillColor": "#ffe1a6",
+        "borderColor": "#b5820c",
+        "textColor": "#3a2a00"
+      },
+      {
+        "id": "data",
+        "name": "Data",
+        "laneRole": "data",
+        "shape": "data-object",
+        "icon": "db",
+        "fillColor": "#ffffff",
+        "borderColor": "#5b6470",
+        "textColor": "#1a2029"
+      }
+    ],
+    "relationshipTypes": [
+      {
+        "id": "flow",
+        "name": "flow",
+        "archimateType": "flow-relationship",
+        "lineStyle": "solid",
+        "lineColor": "#1f6f6b",
+        "lineThickness": 2,
+        "sourceArrowhead": "none",
+        "targetArrowhead": "arrow",
+        "defaultRouting": "orthogonal"
+      },
+      {
+        "id": "access",
+        "name": "access",
+        "archimateType": "access-relationship",
+        "lineStyle": "short-dashed",
+        "lineColor": "#8a5a2b",
+        "lineThickness": 2,
+        "sourceArrowhead": "none",
+        "targetArrowhead": "arrow",
+        "defaultRouting": "orthogonal"
+      },
+      {
+        "id": "triggering",
+        "name": "triggering",
+        "archimateType": "triggering-relationship",
+        "lineStyle": "solid",
+        "lineColor": "#c07d00",
+        "lineThickness": 2,
+        "sourceArrowhead": "none",
+        "targetArrowhead": "arrow",
+        "defaultRouting": "orthogonal"
+      },
+      {
+        "id": "serving",
+        "name": "serving",
+        "archimateType": "serving-relationship",
+        "lineStyle": "dashed",
+        "lineColor": "#2b6cb0",
+        "lineThickness": 2,
+        "sourceArrowhead": "none",
+        "targetArrowhead": "arrow",
+        "defaultRouting": "orthogonal"
+      },
+      {
+        "id": "association",
+        "name": "association",
+        "archimateType": "association-relationship",
+        "lineStyle": "dotted",
+        "lineColor": "#94a3b8",
+        "lineThickness": 1.5,
+        "sourceArrowhead": "none",
+        "targetArrowhead": "none",
+        "defaultRouting": "orthogonal"
+      }
+    ],
+    "autoTypingRules": [
+      {
+        "id": "r_mu68sw8p_12",
+        "source": "data",
+        "target": "*",
+        "scope": "any",
+        "relType": "association"
+      },
+      {
+        "id": "r_mu68sw8p_13",
+        "source": "*",
+        "target": "service",
+        "scope": "cross",
+        "relType": "serving"
+      },
+      {
+        "id": "r_mu68sw8p_14",
+        "source": "*",
+        "target": "data",
+        "scope": "any",
+        "relType": "access"
+      },
+      {
+        "id": "r_mu68sw8p_15",
+        "source": "*",
+        "target": "*",
+        "scope": "cross",
+        "relType": "serving"
+      },
+      {
+        "id": "r_mu68sw8p_16",
+        "source": "service",
+        "target": "function",
+        "scope": "same",
+        "relType": "flow"
+      },
+      {
+        "id": "r_mu68sw8p_17",
+        "source": "function",
+        "target": "service",
+        "scope": "same",
+        "relType": "flow"
+      },
+      {
+        "id": "r_mu68sw8p_18",
+        "source": "function",
+        "target": "function",
+        "scope": "same",
+        "relType": "flow"
+      },
+      {
+        "id": "r_mu68sw8p_19",
+        "source": "service",
+        "target": "event",
+        "scope": "same",
+        "relType": "triggering"
+      },
+      {
+        "id": "r_mu68sw8p_1a",
+        "source": "function",
+        "target": "event",
+        "scope": "same",
+        "relType": "triggering"
+      },
+      {
+        "id": "r_mu68sw8p_1b",
+        "source": "*",
+        "target": "*",
+        "scope": "any",
+        "relType": "flow"
+      }
+    ],
+    "defaultLaneTemplate": [
+      "services",
+      "functions",
+      "events",
+      "data"
+    ],
+    "providers": [
+      {
+        "id": "azure",
+        "name": "Azure"
+      }
+    ],
+    "artifactTypes": [
+      {
+        "id": "container-image",
+        "name": "Container image"
+      },
+      {
+        "id": "compiled-package",
+        "name": "Compiled application package"
+      },
+      {
+        "id": "source-package",
+        "name": "Source package"
+      },
+      {
+        "id": "web-deploy-package",
+        "name": "Web Deploy package"
+      },
+      {
+        "id": "jar",
+        "name": "JAR"
+      },
+      {
+        "id": "war",
+        "name": "WAR"
+      },
+      {
+        "id": "static-web-bundle",
+        "name": "Static web bundle"
+      },
+      {
+        "id": "installer",
+        "name": "Installer"
+      },
+      {
+        "id": "executable",
+        "name": "Executable / binary"
+      },
+      {
+        "id": "vm-image",
+        "name": "VM image"
+      },
+      {
+        "id": "service-fabric-package",
+        "name": "Service Fabric application package"
+      },
+      {
+        "id": "cloud-service-package",
+        "name": "Cloud Service package"
+      },
+      {
+        "id": "python-wheel",
+        "name": "Python wheel"
+      },
+      {
+        "id": "notebook",
+        "name": "Notebook"
+      },
+      {
+        "id": "ml-model",
+        "name": "ML model artifact"
+      },
+      {
+        "id": "workflow-definition",
+        "name": "Workflow definition"
+      },
+      {
+        "id": "pipeline-definition",
+        "name": "Pipeline definition"
+      },
+      {
+        "id": "api-definition",
+        "name": "API definition with policies"
+      },
+      {
+        "id": "iis-deployment",
+        "name": "IIS deployment"
+      }
+    ],
+    "technologyServices": [
+      {
+        "id": "ts-virtual-machines",
+        "name": "Azure Virtual Machines",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image",
+          "compiled-package",
+          "web-deploy-package",
+          "jar",
+          "war",
+          "installer",
+          "executable",
+          "vm-image",
+          "iis-deployment"
+        ]
+      },
+      {
+        "id": "ts-vm-scale-sets",
+        "name": "VM Scale Sets",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "vm-image"
+        ]
+      },
+      {
+        "id": "ts-app-service-code",
+        "name": "App Service (code)",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "compiled-package",
+          "source-package",
+          "web-deploy-package",
+          "jar",
+          "war",
+          "static-web-bundle"
+        ]
+      },
+      {
+        "id": "ts-app-service-containers",
+        "name": "App Service (Web App for Containers)",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image"
+        ]
+      },
+      {
+        "id": "ts-static-web-apps",
+        "name": "Static Web Apps",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "static-web-bundle"
+        ]
+      },
+      {
+        "id": "ts-functions",
+        "name": "Azure Functions",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image",
+          "compiled-package",
+          "source-package"
+        ]
+      },
+      {
+        "id": "ts-logic-apps-consumption",
+        "name": "Logic Apps Consumption",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "workflow-definition"
+        ]
+      },
+      {
+        "id": "ts-logic-apps-standard",
+        "name": "Logic Apps Standard",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "compiled-package"
+        ]
+      },
+      {
+        "id": "ts-container-apps",
+        "name": "Azure Container Apps",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image"
+        ]
+      },
+      {
+        "id": "ts-aks",
+        "name": "Azure Kubernetes Service",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image"
+        ]
+      },
+      {
+        "id": "ts-aro",
+        "name": "Azure Red Hat OpenShift",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image"
+        ]
+      },
+      {
+        "id": "ts-container-instances",
+        "name": "Azure Container Instances",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image"
+        ]
+      },
+      {
+        "id": "ts-container-registry",
+        "name": "Azure Container Registry",
+        "providerId": "azure",
+        "artifactTypeIds": []
+      },
+      {
+        "id": "ts-batch",
+        "name": "Azure Batch",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image",
+          "compiled-package",
+          "executable",
+          "vm-image",
+          "python-wheel"
+        ]
+      },
+      {
+        "id": "ts-service-fabric",
+        "name": "Service Fabric",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image",
+          "service-fabric-package"
+        ]
+      },
+      {
+        "id": "ts-spring-apps",
+        "name": "Azure Spring Apps",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "jar"
+        ]
+      },
+      {
+        "id": "ts-cloud-services",
+        "name": "Cloud Services (extended support)",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "cloud-service-package"
+        ]
+      },
+      {
+        "id": "ts-databricks",
+        "name": "Azure Databricks",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "jar",
+          "python-wheel",
+          "notebook"
+        ]
+      },
+      {
+        "id": "ts-data-factory",
+        "name": "Data Factory / Synapse pipelines",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "notebook",
+          "pipeline-definition"
+        ]
+      },
+      {
+        "id": "ts-machine-learning",
+        "name": "Azure Machine Learning (managed endpoints)",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "python-wheel",
+          "notebook",
+          "ml-model"
+        ]
+      },
+      {
+        "id": "ts-api-management",
+        "name": "API Management",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "api-definition"
+        ]
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "c_mu68sw8p_1c",
+      "title": "VPMS / Tyro SDK",
+      "description": "external vet platform · Tyro API gateway",
+      "color": "#6b7a99",
+      "external": true,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    },
+    {
+      "id": "c_mu68sw8p_1e",
+      "title": "VetHub",
+      "description": "claim intake & enrichment",
+      "color": "#4a8fb0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ],
+      "techServices": [
+        {
+          "technologyServiceId": "ts-app-service-code",
+          "artifactTypeId": "compiled-package"
+        }
+      ]
+    },
+    {
+      "id": "c_mu68sw8p_1f",
+      "title": "COS",
+      "description": "claim orchestration service",
+      "color": "#e2a2ca",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    },
+    {
+      "id": "c_muamvohy_3k",
+      "title": "Claim Automation",
+      "description": "",
+      "color": "#4a8fb0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    },
+    {
+      "id": "c_mu68sw8p_1g",
+      "title": "Claims API (CLAPI)",
+      "description": "claims REST interface",
+      "color": "#b06d8a",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    },
+    {
+      "id": "c_mu6gjkxs_6z",
+      "title": "CSP.Au.DigitalApi (DAPI)",
+      "description": "",
+      "color": "#b06d8a",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    },
+    {
+      "id": "c_mu6gid7m_5i",
+      "title": "Dynamic Clapi",
+      "description": "",
+      "color": "#b06d8a",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    },
+    {
+      "id": "c_mu6lwr14_q8",
+      "title": "STP - Clawdia",
+      "description": "",
+      "color": "#4a8fb0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    },
+    {
+      "id": "c_x94icthf",
+      "title": "UPM Db",
+      "description": "",
+      "color": "#4a8fb0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    },
+    {
+      "id": "c_mu68sw8p_1h",
+      "title": "UPM Dynamics API",
+      "description": "Dynamic CLAPI",
+      "color": "#754ba0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    },
+    {
+      "id": "c_mu6lzxlj_sm",
+      "title": "ML Environment",
+      "description": "",
+      "color": "#4a8fb0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    },
+    {
+      "id": "c_mu68sw8p_1j",
+      "title": "UPM+",
+      "description": "policy management",
+      "color": "#754ba0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "events",
+        "data"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "nd_mu68uxr1_1p",
+      "componentId": "c_mu68sw8p_1c",
+      "laneRole": "functions",
+      "executionUnit": 6,
+      "nodeTypeId": "function",
+      "label": "Submit C3 Claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": ""
+    },
+    {
+      "id": "nd_mu68v811_1q",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "services",
+      "executionUnit": 6,
+      "nodeTypeId": "service",
+      "label": "new Conversation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": true,
+      "httpMethod": "GET",
+      "url": "/api/Claim/NewConversationId"
+    },
+    {
+      "id": "nd_mu68vwet_1s",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "functions",
+      "executionUnit": 7,
+      "nodeTypeId": "function",
+      "label": "Recognise Claim Type",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": ""
+    },
+    {
+      "id": "nd_mu68w65d_1u",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "functions",
+      "executionUnit": 12,
+      "nodeTypeId": "function",
+      "label": "Eligibility Check",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": ""
+    },
+    {
+      "id": "nd_mu691d7m_2f",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "functions",
+      "executionUnit": 16,
+      "nodeTypeId": "function",
+      "label": "Invoice Generation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": ""
+    },
+    {
+      "id": "nd_mu6asivb_30",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "services",
+      "executionUnit": 16,
+      "nodeTypeId": "service",
+      "label": "Poll Conversations in COS",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6av8r7_34",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 15,
+      "nodeTypeId": "function",
+      "label": "Enrich Claim with Reference Number",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6avy4h_37",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 16,
+      "nodeTypeId": "function",
+      "label": "Policy Validation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6aw8jg_38",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 17,
+      "nodeTypeId": "function",
+      "label": "Enrich Claim with Treatment Codes",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6gmuf9_7o",
+      "componentId": "c_mu68sw8p_1g",
+      "laneRole": "services",
+      "executionUnit": 24,
+      "nodeTypeId": "service",
+      "label": "Claim Submission",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": true,
+      "httpMethod": "POST",
+      "url": "api/Claims",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6gnjs0_80",
+      "componentId": "c_mu68sw8p_1g",
+      "laneRole": "functions",
+      "executionUnit": 24,
+      "nodeTypeId": "function",
+      "label": "DAPI Routing logic",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6goysj_86",
+      "componentId": "c_mu6gjkxs_6z",
+      "laneRole": "services",
+      "executionUnit": 24,
+      "nodeTypeId": "service",
+      "label": "Dapi Claim Submission",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6gpt7h_8b",
+      "componentId": "c_mu6gjkxs_6z",
+      "laneRole": "functions",
+      "executionUnit": 24,
+      "nodeTypeId": "function",
+      "label": "Prepare DS Tables for Claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6gqg3q_8h",
+      "componentId": "c_x94icthf",
+      "laneRole": "data",
+      "executionUnit": 24,
+      "nodeTypeId": "data",
+      "label": "DS* Tables",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6grkf4_8q",
+      "componentId": "c_mu68sw8p_1h",
+      "laneRole": "services",
+      "executionUnit": 25,
+      "nodeTypeId": "service",
+      "label": "UPM Data Polling (10 min)",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6gst79_8y",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 27,
+      "nodeTypeId": "function",
+      "label": "Ingest Claim from Data",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6gu2vo_96",
+      "componentId": "c_mu68sw8p_1g",
+      "laneRole": "services",
+      "executionUnit": 25,
+      "nodeTypeId": "service",
+      "label": "Finish Claim Submission",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": true,
+      "httpMethod": "PUT",
+      "url": "api/Claims/FinishSubmitClaim",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6guleu_9d",
+      "componentId": "c_mu68sw8p_1g",
+      "laneRole": "functions",
+      "executionUnit": 25,
+      "nodeTypeId": "function",
+      "label": "DAPI Routing logic",
+      "isDuplicate": true,
+      "dupOf": "nd_mu6gnjs0_80",
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6guoti_9j",
+      "componentId": "c_mu6gjkxs_6z",
+      "laneRole": "services",
+      "executionUnit": 25,
+      "nodeTypeId": "service",
+      "label": "Finish Claim Submission",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6gvzr4_9z",
+      "componentId": "c_mu6gjkxs_6z",
+      "laneRole": "functions",
+      "executionUnit": 25,
+      "nodeTypeId": "function",
+      "label": "Update DS Tables for Claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6h0sl9_bn",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "services",
+      "executionUnit": 26,
+      "nodeTypeId": "service",
+      "label": "Lodge Claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6h3e0c_c2",
+      "componentId": "c_mu68sw8p_1h",
+      "laneRole": "services",
+      "executionUnit": 27,
+      "nodeTypeId": "service",
+      "label": "Lodge Claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6h3k1c_c7",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "functions",
+      "executionUnit": 26,
+      "nodeTypeId": "function",
+      "label": "UPM Routing Logic",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6h4vt9_cl",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 28,
+      "nodeTypeId": "function",
+      "label": "Duplicate Check",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6h50p8_cr",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 29,
+      "nodeTypeId": "function",
+      "label": "Fraud Check",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6h55ez_cx",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 30,
+      "nodeTypeId": "function",
+      "label": "Bank Details Check",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6h5jqx_d3",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 31,
+      "nodeTypeId": "function",
+      "label": "Request Medical Assessment",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6h6op0_d9",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "services",
+      "executionUnit": 31,
+      "nodeTypeId": "service",
+      "label": "Claw Init Api",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": true,
+      "httpMethod": "POST",
+      "url": "api/Claims/CLAW-INIT-API",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6hav2r_f6",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "services",
+      "executionUnit": 39,
+      "nodeTypeId": "service",
+      "label": "Write",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": true,
+      "httpMethod": "POST",
+      "url": "api/Claims/Write",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6hc5fr_fw",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "services",
+      "executionUnit": 41,
+      "nodeTypeId": "service",
+      "label": "Upm Routing Logic",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6hdxhi_g2",
+      "componentId": "c_mu68sw8p_1h",
+      "laneRole": "services",
+      "executionUnit": 41,
+      "nodeTypeId": "service",
+      "label": "Write Api",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6heda4_g7",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 41,
+      "nodeTypeId": "function",
+      "label": "Benefit Calculation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6heklz_gd",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 44,
+      "nodeTypeId": "function",
+      "label": "Payment Settlement",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6hfedd_gj",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "services",
+      "executionUnit": 46,
+      "nodeTypeId": "service",
+      "label": "Gap only benefit",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6hg39x_gr",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "functions",
+      "executionUnit": 47,
+      "nodeTypeId": "function",
+      "label": "Routing to Cos Logic",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6jpi8o_gx",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "services",
+      "executionUnit": 47,
+      "nodeTypeId": "service",
+      "label": "GapOnlyBeneit",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": true,
+      "httpMethod": "POST",
+      "url": "/api/GapOnlyBenefit",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6jq9ad_ik",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 46,
+      "nodeTypeId": "function",
+      "label": "Prepare Benefit Req. for VetHub",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6jwbr6_pk",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "services",
+      "executionUnit": 46,
+      "nodeTypeId": "service",
+      "label": "GapOnly Benefit Amount",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": true,
+      "httpMethod": "POST",
+      "url": "/api/Claim/{conversationId}/GapOnly/BenefitAmount",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6jxxhr_pw",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "functions",
+      "executionUnit": 47,
+      "nodeTypeId": "function",
+      "label": "Update Benefit on Claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6k0s7y_qf",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "data",
+      "executionUnit": 47,
+      "nodeTypeId": "data",
+      "label": "Vet Hub Conversation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6k3lnu_st",
+      "componentId": "c_mu68sw8p_1c",
+      "laneRole": "services",
+      "executionUnit": 48,
+      "nodeTypeId": "service",
+      "label": "{TyroGapOnlyOutcomeEndpoint}",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6k427l_t1",
+      "componentId": "c_mu68sw8p_1c",
+      "laneRole": "functions",
+      "executionUnit": 49,
+      "nodeTypeId": "function",
+      "label": "Communication outcome polling",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6lxtwk_rv",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "services",
+      "executionUnit": 32,
+      "nodeTypeId": "service",
+      "label": "Clawdia Initialisation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "POST",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6lyims_s6",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 34,
+      "nodeTypeId": "function",
+      "label": "Easy Cohort",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6riemg_12",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 35,
+      "nodeTypeId": "function",
+      "label": "Calll GP Model",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6rj4xx_18",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 36,
+      "nodeTypeId": "function",
+      "label": "Apply BR to Prediction",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mu6rn4lz_1e",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 39,
+      "nodeTypeId": "function",
+      "label": "Prepare Write Request for UPM",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muamj8fs_18",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "services",
+      "executionUnit": 16,
+      "nodeTypeId": "service",
+      "label": "Attachment",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muamopuf_1i",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "data",
+      "executionUnit": 16,
+      "nodeTypeId": "data",
+      "label": "Vet Hub Conversation",
+      "isDuplicate": true,
+      "dupOf": "nd_mu6k0s7y_qf",
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muamsiy9_2i",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "data",
+      "executionUnit": 14,
+      "nodeTypeId": "data",
+      "label": "COS Claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muamwem4_53",
+      "componentId": "c_muamvohy_3k",
+      "laneRole": "services",
+      "executionUnit": 17,
+      "nodeTypeId": "service",
+      "label": "predict Treatment Code",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muawi8n6_8u",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "functions",
+      "executionUnit": 6,
+      "nodeTypeId": "function",
+      "label": "Save new Conversation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muawiqyl_92",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "data",
+      "executionUnit": 6,
+      "nodeTypeId": "data",
+      "label": "Vet Hub Conversation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muayr4fq_1l",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "services",
+      "executionUnit": 7,
+      "nodeTypeId": "service",
+      "label": "VetXml Post",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": true,
+      "httpMethod": "POST",
+      "url": "/api/Claim/{conversationId}",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muaz8m01_8f",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 14,
+      "nodeTypeId": "function",
+      "label": "Save COS Claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muazioud_a5",
+      "componentId": "c_muamvohy_3k",
+      "laneRole": "functions",
+      "executionUnit": 17,
+      "nodeTypeId": "function",
+      "label": "Convert to T*",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muazqstn_bt",
+      "componentId": "c_mu6lzxlj_sm",
+      "laneRole": "services",
+      "executionUnit": 17,
+      "nodeTypeId": "service",
+      "label": "Sophia Junior api",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muazu5f4_by",
+      "componentId": "c_mu6lzxlj_sm",
+      "laneRole": "data",
+      "executionUnit": 17,
+      "nodeTypeId": "data",
+      "label": "Sophia Junior Model",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muazvc5y_cj",
+      "componentId": "c_muamvohy_3k",
+      "laneRole": "functions",
+      "executionUnit": 19,
+      "nodeTypeId": "function",
+      "label": "Apply Business Rules",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_muazwbcm_cp",
+      "componentId": "c_muamvohy_3k",
+      "laneRole": "functions",
+      "executionUnit": 20,
+      "nodeTypeId": "function",
+      "label": "Publish to Cos",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mukvjamj_12",
+      "componentId": "c_mu6lzxlj_sm",
+      "laneRole": "services",
+      "executionUnit": 35,
+      "nodeTypeId": "service",
+      "label": "Claim medical Assessment",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mukvjssw_18",
+      "componentId": "c_mu6lzxlj_sm",
+      "laneRole": "functions",
+      "executionUnit": 35,
+      "nodeTypeId": "function",
+      "label": "Diangose code prediction",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mukvk9va_1e",
+      "componentId": "c_mu6lzxlj_sm",
+      "laneRole": "functions",
+      "executionUnit": 36,
+      "nodeTypeId": "function",
+      "label": "Case Linking",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mukwpk5m_27",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 19,
+      "nodeTypeId": "function",
+      "label": "Lodge Claim in UPM",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "snakeStart": false
+    },
+    {
+      "id": "nd_mv4msr8q_18",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "data",
+      "executionUnit": 12,
+      "nodeTypeId": "data",
+      "label": "Vet Hub Conversation",
+      "isDuplicate": true,
+      "dupOf": "nd_mu6k0s7y_qf",
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "nd_clw_loadclaim",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 32,
+      "nodeTypeId": "function",
+      "label": "Load Claim Data",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": []
+    },
+    {
+      "id": "nd_clw_loadpolicy",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 33,
+      "nodeTypeId": "function",
+      "label": "Load Policy Data",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": []
+    },
+    {
+      "id": "nd_clw_maplogic",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 37,
+      "nodeTypeId": "function",
+      "label": "Map Data into Logic Claims",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": []
+    }
+  ],
+  "connections": [
+    {
+      "id": "cn_mu68v811_1r",
+      "sourceNodeId": "nd_mu68uxr1_1p",
+      "targetNodeId": "nd_mu68v811_1q",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6aw8jg_39",
+      "sourceNodeId": "nd_mu6avy4h_37",
+      "targetNodeId": "nd_mu6aw8jg_38",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6awk8f_3a",
+      "sourceNodeId": "nd_mu6av8r7_34",
+      "targetNodeId": "nd_mu6avy4h_37",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6gnjs0_81",
+      "sourceNodeId": "nd_mu6gmuf9_7o",
+      "targetNodeId": "nd_mu6gnjs0_80",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6gpt7h_8c",
+      "sourceNodeId": "nd_mu6goysj_86",
+      "targetNodeId": "nd_mu6gpt7h_8b",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6gqg3q_8i",
+      "sourceNodeId": "nd_mu6gpt7h_8b",
+      "targetNodeId": "nd_mu6gqg3q_8h",
+      "relTypeId": "access",
+      "label": "insert",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6gr3u8_8n",
+      "sourceNodeId": "nd_mu6gnjs0_80",
+      "targetNodeId": "nd_mu6goysj_86",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6gs4rf_8v",
+      "sourceNodeId": "nd_mu6grkf4_8q",
+      "targetNodeId": "nd_mu6gqg3q_8h",
+      "relTypeId": "access",
+      "label": "read",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6gta4n_93",
+      "sourceNodeId": "nd_mu6grkf4_8q",
+      "targetNodeId": "nd_mu6gst79_8y",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6guleu_9e",
+      "sourceNodeId": "nd_mu6gu2vo_96",
+      "targetNodeId": "nd_mu6guleu_9d",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6gv90w_9u",
+      "sourceNodeId": "nd_mu6guleu_9d",
+      "targetNodeId": "nd_mu6guoti_9j",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6gvzr4_a0",
+      "sourceNodeId": "nd_mu6guoti_9j",
+      "targetNodeId": "nd_mu6gvzr4_9z",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6gx67s_ah",
+      "sourceNodeId": "nd_mu6gvzr4_9z",
+      "targetNodeId": "nd_mu6gqg3q_8h",
+      "relTypeId": "access",
+      "label": "update",
+      "routingOverride": null,
+      "waypoints": [
+        {
+          "sx": 0,
+          "sy": 818.0907700558423,
+          "tx": 261.5,
+          "ty": -171.9092299441577
+        },
+        {
+          "sx": -261.5,
+          "sy": 818.0907700558423,
+          "tx": 0,
+          "ty": -171.9092299441577
+        },
+        {
+          "sx": -261.5,
+          "sy": 879.0585808381848,
+          "tx": 0,
+          "ty": -110.94141916181525
+        }
+      ]
+    },
+    {
+      "id": "cn_mu6h3umi_cc",
+      "sourceNodeId": "nd_mu6h0sl9_bn",
+      "targetNodeId": "nd_mu6h3k1c_c7",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6h3x80_cf",
+      "sourceNodeId": "nd_mu6h3k1c_c7",
+      "targetNodeId": "nd_mu6h3e0c_c2",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6h41se_ci",
+      "sourceNodeId": "nd_mu6h3e0c_c2",
+      "targetNodeId": "nd_mu6gst79_8y",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6h4vta_cm",
+      "sourceNodeId": "nd_mu6gst79_8y",
+      "targetNodeId": "nd_mu6h4vt9_cl",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6h50p8_cs",
+      "sourceNodeId": "nd_mu6h4vt9_cl",
+      "targetNodeId": "nd_mu6h50p8_cr",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6h55ez_cy",
+      "sourceNodeId": "nd_mu6h50p8_cr",
+      "targetNodeId": "nd_mu6h55ez_cx",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6h5jqx_d4",
+      "sourceNodeId": "nd_mu6h55ez_cx",
+      "targetNodeId": "nd_mu6h5jqx_d3",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6hc5fr_fx",
+      "sourceNodeId": "nd_mu6hav2r_f6",
+      "targetNodeId": "nd_mu6hc5fr_fw",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6heda4_g8",
+      "sourceNodeId": "nd_mu6hdxhi_g2",
+      "targetNodeId": "nd_mu6heda4_g7",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6heklz_ge",
+      "sourceNodeId": "nd_mu6heda4_g7",
+      "targetNodeId": "nd_mu6heklz_gd",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6hfw4a_go",
+      "sourceNodeId": "nd_mu6hc5fr_fw",
+      "targetNodeId": "nd_mu6hdxhi_g2",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6hg39x_gs",
+      "sourceNodeId": "nd_mu6hfedd_gj",
+      "targetNodeId": "nd_mu6hg39x_gr",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6jq9ad_il",
+      "sourceNodeId": "nd_mu6jpi8o_gx",
+      "targetNodeId": "nd_mu6jq9ad_ik",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6jwbr6_pl",
+      "sourceNodeId": "nd_mu6jq9ad_ik",
+      "targetNodeId": "nd_mu6jwbr6_pk",
+      "relTypeId": "serving",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6jzkcf_q5",
+      "sourceNodeId": "nd_mu6jwbr6_pk",
+      "targetNodeId": "nd_mu6jxxhr_pw",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6k11v1_qr",
+      "sourceNodeId": "nd_mu6jxxhr_pw",
+      "targetNodeId": "nd_mu6k0s7y_qf",
+      "relTypeId": "access",
+      "label": "update benefit",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6k3rlm_sy",
+      "sourceNodeId": "nd_mu6jxxhr_pw",
+      "targetNodeId": "nd_mu6k3lnu_st",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6k4pdy_t6",
+      "sourceNodeId": "nd_mu6k427l_t1",
+      "targetNodeId": "nd_mu6k0s7y_qf",
+      "relTypeId": "access",
+      "label": "read",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6k5rth_tl",
+      "sourceNodeId": "nd_mu6hg39x_gr",
+      "targetNodeId": "nd_mu6jpi8o_gx",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6lhbth_18",
+      "sourceNodeId": "nd_mu6h5jqx_d3",
+      "targetNodeId": "nd_mu6heda4_g7",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6m0qp9_tr",
+      "sourceNodeId": "nd_mu6h6op0_d9",
+      "targetNodeId": "nd_mu6lxtwk_rv",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6riemg_13",
+      "sourceNodeId": "nd_mu6lyims_s6",
+      "targetNodeId": "nd_mu6riemg_12",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6rj4xx_19",
+      "sourceNodeId": "nd_mu6riemg_12",
+      "targetNodeId": "nd_mu6rj4xx_18",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mu6rnu0y_1k",
+      "sourceNodeId": "nd_mu6rn4lz_1e",
+      "targetNodeId": "nd_mu6hav2r_f6",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muamoyje_1n",
+      "sourceNodeId": "nd_mu691d7m_2f",
+      "targetNodeId": "nd_muamopuf_1i",
+      "relTypeId": "access",
+      "label": "write",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muawibp6_8x",
+      "sourceNodeId": "nd_mu68v811_1q",
+      "targetNodeId": "nd_muawi8n6_8u",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muawiqyl_93",
+      "sourceNodeId": "nd_muawi8n6_8u",
+      "targetNodeId": "nd_muawiqyl_92",
+      "relTypeId": "access",
+      "label": "create",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muays9xn_1y",
+      "sourceNodeId": "nd_mu68uxr1_1p",
+      "targetNodeId": "nd_muayr4fq_1l",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null,
+      "waypoints": [
+        {
+          "sx": 108.10000000000002,
+          "sy": 0,
+          "tx": -113.39999999999998,
+          "ty": -230
+        },
+        {
+          "sx": 221.5,
+          "sy": 0,
+          "tx": 0,
+          "ty": -230
+        },
+        {
+          "sx": 221.5,
+          "sy": 18.47005923890967,
+          "tx": 0,
+          "ty": -211.52994076109033
+        }
+      ]
+    },
+    {
+      "id": "cn_muayzwdz_4u",
+      "sourceNodeId": "nd_muayr4fq_1l",
+      "targetNodeId": "nd_mu68vwet_1s",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muaz0pp5_5o",
+      "sourceNodeId": "nd_muamj8fs_18",
+      "targetNodeId": "nd_mu691d7m_2f",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muaz4b1v_6x",
+      "sourceNodeId": "nd_mu6asivb_30",
+      "targetNodeId": "nd_muamopuf_1i",
+      "relTypeId": "access",
+      "label": "read",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muaza9pu_92",
+      "sourceNodeId": "nd_mu6asivb_30",
+      "targetNodeId": "nd_muaz8m01_8f",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null,
+      "waypoints": [
+        {
+          "sx": -162.24596173823966,
+          "sy": 0,
+          "tx": 356.75403826176034,
+          "ty": -60
+        },
+        {
+          "sx": -519,
+          "sy": 0,
+          "tx": 0,
+          "ty": -60
+        }
+      ]
+    },
+    {
+      "id": "cn_muazan4s_9b",
+      "sourceNodeId": "nd_muaz8m01_8f",
+      "targetNodeId": "nd_muamsiy9_2i",
+      "relTypeId": "access",
+      "label": "Create",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muazioud_a6",
+      "sourceNodeId": "nd_muamwem4_53",
+      "targetNodeId": "nd_muazioud_a5",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muazugob_c3",
+      "sourceNodeId": "nd_muazu5f4_by",
+      "targetNodeId": "nd_muazqstn_bt",
+      "relTypeId": "association",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muazui1w_c6",
+      "sourceNodeId": "nd_muazqstn_bt",
+      "targetNodeId": "nd_muazu5f4_by",
+      "relTypeId": "access",
+      "label": "read",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muazuv8x_c9",
+      "sourceNodeId": "nd_muazu5f4_by",
+      "targetNodeId": "nd_muazqstn_bt",
+      "relTypeId": "association",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muazv6b7_ce",
+      "sourceNodeId": "nd_muazioud_a5",
+      "targetNodeId": "nd_muazqstn_bt",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muazvc5y_ck",
+      "sourceNodeId": "nd_muazioud_a5",
+      "targetNodeId": "nd_muazvc5y_cj",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muazwbcm_cq",
+      "sourceNodeId": "nd_muazvc5y_cj",
+      "targetNodeId": "nd_muazwbcm_cp",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muazwwlc_cv",
+      "sourceNodeId": "nd_mu6aw8jg_38",
+      "targetNodeId": "nd_muamwem4_53",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mukvjamj_13",
+      "sourceNodeId": "nd_mu6riemg_12",
+      "targetNodeId": "nd_mukvjamj_12",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mukvjssw_19",
+      "sourceNodeId": "nd_mukvjamj_12",
+      "targetNodeId": "nd_mukvjssw_18",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mukvk9va_1f",
+      "sourceNodeId": "nd_mukvjssw_18",
+      "targetNodeId": "nd_mukvk9va_1e",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mukvua9y_1r",
+      "sourceNodeId": "nd_mu6heda4_g7",
+      "targetNodeId": "nd_mu6hfedd_gj",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mukwpk5m_28",
+      "sourceNodeId": "nd_mu6aw8jg_38",
+      "targetNodeId": "nd_mukwpk5m_27",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mukwq4gy_2b",
+      "sourceNodeId": "nd_mukwpk5m_27",
+      "targetNodeId": "nd_mu6gmuf9_7o",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null,
+      "waypoints": [
+        {
+          "sx": 119,
+          "sy": 0,
+          "tx": -300.5,
+          "ty": -520
+        },
+        {
+          "sx": 419.5,
+          "sy": 0,
+          "tx": 0,
+          "ty": -520
+        }
+      ]
+    },
+    {
+      "id": "cn_mukwq9e6_2c",
+      "sourceNodeId": "nd_mukwpk5m_27",
+      "targetNodeId": "nd_mu6gu2vo_96",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null,
+      "waypoints": [
+        {
+          "sx": 281.9000000000001,
+          "sy": 0,
+          "tx": -399.0999999999999,
+          "ty": -520
+        },
+        {
+          "sx": 664.1859553150398,
+          "sy": 0,
+          "tx": -16.81404468496021,
+          "ty": -520
+        },
+        {
+          "sx": 664.1859553150398,
+          "sy": 276.6410301657793,
+          "tx": -16.81404468496021,
+          "ty": -243.35896983422072
+        }
+      ]
+    },
+    {
+      "id": "cn_mukwqdek_2d",
+      "sourceNodeId": "nd_mukwpk5m_27",
+      "targetNodeId": "nd_mu6h0sl9_bn",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null,
+      "waypoints": [
+        {
+          "sx": 297,
+          "sy": 0,
+          "tx": -612,
+          "ty": -1100
+        },
+        {
+          "sx": 909,
+          "sy": 0,
+          "tx": 0,
+          "ty": -1100
+        }
+      ]
+    },
+    {
+      "id": "cn_muxg8ycx_1u",
+      "sourceNodeId": "nd_mu6h5jqx_d3",
+      "targetNodeId": "nd_mu6h6op0_d9",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muxlhjsg_1v",
+      "sourceNodeId": "nd_mu68vwet_1s",
+      "targetNodeId": "nd_mu68w65d_1u",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_muz2o2p6_14",
+      "sourceNodeId": "nd_mu68uxr1_1p",
+      "targetNodeId": "nd_muamj8fs_18",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null,
+      "waypoints": [
+        {
+          "sx": 462.3666666666668,
+          "sy": 0,
+          "tx": -731.1333333333332,
+          "ty": -230
+        },
+        {
+          "sx": 1193.5,
+          "sy": 0,
+          "tx": 0,
+          "ty": -230
+        }
+      ]
+    },
+    {
+      "id": "cn_mv4mlcl5_14",
+      "sourceNodeId": "nd_muawi8n6_8u",
+      "targetNodeId": "nd_mu68vwet_1s",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mv4muoeo_1b",
+      "sourceNodeId": "nd_mu68w65d_1u",
+      "targetNodeId": "nd_mv4msr8q_18",
+      "relTypeId": "access",
+      "label": "write",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mva7e35a_16",
+      "sourceNodeId": "nd_mu6lxtwk_rv",
+      "targetNodeId": "nd_clw_loadclaim",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mva7e367_17",
+      "sourceNodeId": "nd_clw_loadclaim",
+      "targetNodeId": "nd_clw_loadpolicy",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mva7e372_18",
+      "sourceNodeId": "nd_clw_loadpolicy",
+      "targetNodeId": "nd_mu6lyims_s6",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mva7e38s_19",
+      "sourceNodeId": "nd_mu6rj4xx_18",
+      "targetNodeId": "nd_clw_maplogic",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_mva7e39l_1a",
+      "sourceNodeId": "nd_clw_maplogic",
+      "targetNodeId": "nd_mu6rn4lz_1e",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    }
+  ]
+}

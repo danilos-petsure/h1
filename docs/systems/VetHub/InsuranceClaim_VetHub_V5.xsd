@@ -1,0 +1,421 @@
+<!-- edited with XMLSpy v2019 (http://www.altova.com) by kumar (home) -->
+<xs:schema xmlns="http://www.vetxml.org/schemas/InsuranceClaim" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.vetxml.org/schemas/InsuranceClaim" elementFormDefault="qualified" version="1.10" id="InsuranceClaim">
+	<xs:element name="InsuranceClaim">
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="Identification" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:all>
+							<xs:element name="OwnerID" type="xs:string" minOccurs="0"/>
+							<xs:element name="PracticeID" type="xs:string" minOccurs="1"/>
+							<xs:element name="PracticeClaimRef" type="xs:string" minOccurs="0"/>
+							<xs:element name="InsurerID" type="xs:string" minOccurs="0"/>
+							<xs:element name="InsurerClaimRef" type="xs:string" minOccurs="0"/>
+							<xs:element name="RequestGap" type="xs:string" minOccurs="1"/>
+						</xs:all>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="InfoFromPolicyHolder" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:all>
+							<xs:element name="PolicyDetails" minOccurs="1" maxOccurs="1">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="PolicyNumber" type="xs:string" minOccurs="0" maxOccurs="1">
+											<xs:annotation>
+												<xs:documentation>It is recommended that PolicyNumber (where available), MobilePhone or EmailAddress is passed</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="PolicyholderName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="Address" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="Postcode" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="InsuranceCompany" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="ExpiryDate" type="xs:date" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="AddressDifferentFromPolicy" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="DaytimePhone" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="EveningPhone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="MobilePhone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="EmailAddress" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="PreferredContactBy" type="xs:string" minOccurs="0" maxOccurs="1">
+											<xs:annotation>
+												<xs:documentation>If PreferredContactBy is evening phone or mobile or email, then corresponding details must be passed</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="AnimalInsuredWithCurrentProviderBefore" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="OtherInsurersCoveringAnimal" minOccurs="0" maxOccurs="1">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Insurer" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="AnimalDetails" minOccurs="1" maxOccurs="1">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="PedigreeName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="Species" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="Breed" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="DateOfBirth" type="xs:date" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="Gender" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="Colour" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="MicrochipNumber" type="xs:string" minOccurs="0" maxOccurs="1"/>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Conditions" minOccurs="0" maxOccurs="1">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Condition" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:all>
+													<xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="DateFirstNoticed" type="xs:date" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="RepeatIllnessInjury" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="DeathDueToIllnessInjury" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="DateOfDeath" type="xs:date" minOccurs="0" maxOccurs="1"/>
+												</xs:all>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="PreviousVets" minOccurs="0" maxOccurs="1">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="PreviousVet" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:all>
+													<xs:element name="PracticeID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="Name" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="Address" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="Postcode" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="Phone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="DateFrom" type="xs:date" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="DateTo" type="xs:date" minOccurs="0" maxOccurs="1"/>
+												</xs:all>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Financial" minOccurs="0" maxOccurs="1">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="PayVet" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="PayClaimTo" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="ElectronicPayment" minOccurs="0" maxOccurs="1">
+											<xs:complexType>
+												<xs:all>
+													<xs:element name="AccountName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="Bank" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="SortCode" type="xs:string" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="AccountNumber" type="xs:string" minOccurs="1" maxOccurs="1"/>
+												</xs:all>
+											</xs:complexType>
+										</xs:element>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+						</xs:all>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="InfoFromVet" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:all>
+							<xs:element name="Miscellaneous" minOccurs="0" maxOccurs="1">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="AnimalRegistered" type="xs:date" minOccurs="1" maxOccurs="1"/>
+										<!-- AnimalRegistered good to have -->
+										<xs:element name="LastVaccination" type="xs:date" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="MicrochipNumber" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="GeneralRemarks" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="ClaimHandler" minOccurs="1" maxOccurs="1">
+											<xs:complexType>
+												<xs:all>
+													<xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="Phone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="Email" type="xs:string" minOccurs="0" maxOccurs="1"/>
+												</xs:all>
+											</xs:complexType>
+										</xs:element>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Vet" minOccurs="1" maxOccurs="1">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="VetSurname" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="VetForenames" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="VetPosition" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="VetEmailAddress" type="xs:string" minOccurs="1" maxOccurs="1">
+											<xs:annotation>
+												<xs:documentation>It is recommended that VetEmailAddress is passed.</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="PracticeName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="PracticeID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="RegistrationNumber" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="PracticeAddress" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="PracticePostcode" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<xs:element name="PracticePhone" type="xs:string" minOccurs="1" maxOccurs="1"/>
+										<!-- PracticePhone good to have -->
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="AnimalClinicalHistory" minOccurs="0" maxOccurs="1">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Entry" minOccurs="1" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:all>
+													<xs:element name="Date" type="xs:date" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="Time" type="xs:string" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="EnteredBy" type="xs:string" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="TextEntry" type="xs:string" minOccurs="1" maxOccurs="1"/>
+												</xs:all>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Conditions" minOccurs="1" maxOccurs="1">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Condition" minOccurs="1" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:all>
+													<xs:element name="ConditionCode" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="DiagnosisOrSigns" type="xs:string" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="ConsultationNotes" type="xs:string" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="ClaimContinuation" type="xs:string" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="ClaimReferenceNumber" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="Started" type="xs:date" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="DeathOrEuthanasia" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="PutDownByRecomendation" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="OngoingCondition" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
+													<xs:element name="CremationCost" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="EuthanasiaReason" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="TreatmentDates" minOccurs="1" maxOccurs="1">
+														<xs:complexType>
+															<xs:all>
+																<xs:element name="DateFrom" type="xs:date" minOccurs="0" maxOccurs="1"/>
+																<xs:element name="DateTo" type="xs:date" minOccurs="0" maxOccurs="1"/>
+															</xs:all>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="SeenBeforeRelated" minOccurs="0" maxOccurs="1">
+														<xs:complexType>
+															<xs:all>
+																<xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+																<xs:element name="TreatmentDates" minOccurs="0" maxOccurs="1">
+																	<xs:complexType>
+																		<xs:all>
+																			<xs:element name="DateFrom" type="xs:date" minOccurs="0" maxOccurs="1"/>
+																			<xs:element name="DateTo" type="xs:date" minOccurs="0" maxOccurs="1"/>
+																		</xs:all>
+																	</xs:complexType>
+																</xs:element>
+															</xs:all>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="HouseVisitAndOOH" minOccurs="0" maxOccurs="1">
+														<xs:complexType>
+															<xs:all>
+																<xs:element name="HouseVisit" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+																<xs:element name="HouseVisitReason" type="xs:string" minOccurs="0" maxOccurs="1"/>
+																<xs:element name="OutOfHours" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+																<xs:element name="OutOfHoursReason" type="xs:string" minOccurs="0" maxOccurs="1"/>
+															</xs:all>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="Financial" minOccurs="1" maxOccurs="1">
+														<xs:complexType>
+															<xs:all>
+																<xs:element name="TotalExVAT" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																<xs:element name="TotalDiscount" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+								                                <xs:element name="CustomerPaidAmount" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+								                                <xs:element name="OutstandingBalanceAmount" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+																<xs:element name="VAT" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																<xs:element name="TotalIncVat" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																<!--<xs:element name="InvoiceItems" minOccurs="0" maxOccurs="1">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Item" minOccurs="1" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:all>
+																						<xs:element name="Description" type="xs:string" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="Type" type="xs:string" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="AmountExVAT" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="InvoiceNumber" type="xs:string" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="Date" type="xs:date" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="VAT" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="Quantity" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																					</xs:all>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>-->
+																<xs:element name="Invoices" minOccurs="1" maxOccurs="1">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Invoice" minOccurs="1" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:all>
+																						<xs:element name="InvoiceNumber" type="xs:string" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="Date" type="xs:date" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="TotalExVAT" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="TotalDiscountExVAT" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+																						<xs:element name="VAT" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="TotalIncVat" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																						<xs:element name="Items" minOccurs="1" maxOccurs="1">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="Item" minOccurs="1" maxOccurs="unbounded">
+																										<xs:complexType>
+																											<xs:all>
+                                                        														<xs:element name="TreatmentDate" type="xs:date" minOccurs="0" maxOccurs="1"/>
+																												<xs:element name="ItemCode" type="xs:string" minOccurs="0" maxOccurs="1"/>
+																												<xs:element name="Sequence" type="xs:string" minOccurs="0" maxOccurs="1"/>
+																												<xs:element name="Description" type="xs:string" minOccurs="1" maxOccurs="1"/>
+																												<xs:element name="Type" type="xs:string" minOccurs="1" maxOccurs="1"/>
+																												<!-- Type good to have -->
+																												<xs:element name="AmountExVAT" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																												<xs:element name="DiscountExVAT" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+																												<xs:element name="VAT" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																												<xs:element name="Quantity" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+																												<xs:element name="TotalIncVAT" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+																												<!-- TotalIncVAT good to have -->
+																											</xs:all>
+																										</xs:complexType>
+																									</xs:element>
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																					</xs:all>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:all>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="Remarks" type="xs:string" minOccurs="0" maxOccurs="1"/>
+												</xs:all>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Referrals" minOccurs="0" maxOccurs="1">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Referral" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:all>
+													<xs:element name="ReferralType" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="ReferralReason" type="xs:string" minOccurs="0" maxOccurs="1"/>
+													<xs:element name="ReferralPractice" minOccurs="0" maxOccurs="1">
+														<xs:complexType>
+															<xs:all>
+																<xs:element name="PracticeID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+																<xs:element name="Name" type="xs:string" minOccurs="0" maxOccurs="1"/>
+																<xs:element name="Address" type="xs:string" minOccurs="0" maxOccurs="1"/>
+																<xs:element name="Postcode" type="xs:string" minOccurs="0" maxOccurs="1"/>
+																<xs:element name="Phone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+															</xs:all>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="ReferralDate" type="xs:date" minOccurs="0" maxOccurs="1"/>
+												</xs:all>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Attachments">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Attachment" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:all>
+													<xs:element name="AttachmentName" type="xs:string"/>
+													<xs:element name="AttachmentID" type="xs:string"/>
+													<xs:element name="ContentLength" type="xs:string" minOccurs="0"/>
+													<xs:element name="ContentType" type="xs:string"/>
+													<xs:element name="Description" type="xs:string"/>
+												</xs:all>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="InsuranceCompanySpecificDetails" minOccurs="0" maxOccurs="1">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="PetPlan" minOccurs="0" maxOccurs="1">
+											<xs:complexType>
+												<xs:all>
+													<xs:element name="ClaimForDentalTreatment" minOccurs="0" maxOccurs="1">
+														<xs:complexType>
+															<xs:all>
+																<xs:element name="FullDentalHistory" type="xs:string" minOccurs="0" maxOccurs="1"/>
+															</xs:all>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="ClaimForUrinaryProblem" minOccurs="0" maxOccurs="1">
+														<xs:complexType>
+															<xs:all>
+																<xs:element name="DietFoodCostIncluded" minOccurs="0" maxOccurs="1">
+																	<xs:complexType>
+																		<xs:all>
+																			<xs:element name="Name" type="xs:string" minOccurs="0" maxOccurs="1"/>
+																			<xs:element name="Amount" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+																		</xs:all>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="CrystalsPresent" minOccurs="0" maxOccurs="1">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Type" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="UrineTests" minOccurs="0" maxOccurs="1">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Date" type="xs:date" minOccurs="0" maxOccurs="unbounded"/>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:all>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="BRAVNo" type="xs:string" minOccurs="0" maxOccurs="1"/>
+												</xs:all>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="PetProtect" minOccurs="0" maxOccurs="1">
+											<xs:complexType>
+												<xs:all>
+													<xs:element name="TotalCostPrescriptionDietFoodExVAT" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
+												</xs:all>
+											</xs:complexType>
+										</xs:element>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+						</xs:all>
+					</xs:complexType>
+				</xs:element>
+			</xs:all>
+			<xs:attribute name="version" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

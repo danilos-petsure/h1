@@ -1,0 +1,2367 @@
+{
+  "version": {
+    "major": 2,
+    "minor": 0,
+    "patch": 0
+  },
+  "title": "Earlier Birds – As-Is (simplified claim lifecycle)",
+  "metamodel": {
+    "laneRoles": [
+      {
+        "id": "services",
+        "name": "Services"
+      },
+      {
+        "id": "functions",
+        "name": "Functions"
+      },
+      {
+        "id": "events",
+        "name": "Events"
+      },
+      {
+        "id": "data",
+        "name": "Data"
+      }
+    ],
+    "nodeTypes": [
+      {
+        "id": "service",
+        "name": "Service",
+        "laneRole": "services",
+        "shape": "stadium",
+        "icon": "socket",
+        "fillColor": "#d3ecea",
+        "borderColor": "#2a827d",
+        "textColor": "#0f2f2d"
+      },
+      {
+        "id": "function",
+        "name": "Function",
+        "laneRole": "functions",
+        "shape": "rounded",
+        "icon": "chevron",
+        "fillColor": "#8ed3ce",
+        "borderColor": "#1f6f6b",
+        "textColor": "#0a2c2a"
+      },
+      {
+        "id": "event",
+        "name": "Event",
+        "laneRole": "events",
+        "shape": "stadium",
+        "icon": "bolt",
+        "fillColor": "#ffe1a6",
+        "borderColor": "#b5820c",
+        "textColor": "#3a2a00"
+      },
+      {
+        "id": "data",
+        "name": "Data",
+        "laneRole": "data",
+        "shape": "data-object",
+        "icon": "db",
+        "fillColor": "#ffffff",
+        "borderColor": "#5b6470",
+        "textColor": "#1a2029"
+      }
+    ],
+    "relationshipTypes": [
+      {
+        "id": "flow",
+        "name": "flow",
+        "archimateType": "flow-relationship",
+        "lineStyle": "solid",
+        "lineColor": "#1f6f6b",
+        "lineThickness": 2,
+        "sourceArrowhead": "none",
+        "targetArrowhead": "arrow",
+        "defaultRouting": "orthogonal"
+      },
+      {
+        "id": "access",
+        "name": "access",
+        "archimateType": "access-relationship",
+        "lineStyle": "short-dashed",
+        "lineColor": "#8a5a2b",
+        "lineThickness": 2,
+        "sourceArrowhead": "none",
+        "targetArrowhead": "arrow",
+        "defaultRouting": "orthogonal"
+      },
+      {
+        "id": "triggering",
+        "name": "triggering",
+        "archimateType": "triggering-relationship",
+        "lineStyle": "solid",
+        "lineColor": "#c07d00",
+        "lineThickness": 2,
+        "sourceArrowhead": "none",
+        "targetArrowhead": "arrow",
+        "defaultRouting": "orthogonal"
+      },
+      {
+        "id": "serving",
+        "name": "serving",
+        "archimateType": "serving-relationship",
+        "lineStyle": "dashed",
+        "lineColor": "#2b6cb0",
+        "lineThickness": 2,
+        "sourceArrowhead": "none",
+        "targetArrowhead": "arrow",
+        "defaultRouting": "orthogonal"
+      },
+      {
+        "id": "association",
+        "name": "association",
+        "archimateType": "association-relationship",
+        "lineStyle": "dotted",
+        "lineColor": "#94a3b8",
+        "lineThickness": 1.5,
+        "sourceArrowhead": "none",
+        "targetArrowhead": "none",
+        "defaultRouting": "orthogonal"
+      }
+    ],
+    "autoTypingRules": [
+      {
+        "id": "r_mu68sw8p_12",
+        "source": "data",
+        "target": "*",
+        "scope": "any",
+        "relType": "association"
+      },
+      {
+        "id": "r_mu68sw8p_13",
+        "source": "*",
+        "target": "service",
+        "scope": "cross",
+        "relType": "serving"
+      },
+      {
+        "id": "r_mu68sw8p_14",
+        "source": "*",
+        "target": "data",
+        "scope": "any",
+        "relType": "access"
+      },
+      {
+        "id": "r_mu68sw8p_15",
+        "source": "*",
+        "target": "*",
+        "scope": "cross",
+        "relType": "serving"
+      },
+      {
+        "id": "r_mu68sw8p_16",
+        "source": "service",
+        "target": "function",
+        "scope": "same",
+        "relType": "flow"
+      },
+      {
+        "id": "r_mu68sw8p_17",
+        "source": "function",
+        "target": "service",
+        "scope": "same",
+        "relType": "flow"
+      },
+      {
+        "id": "r_mu68sw8p_18",
+        "source": "function",
+        "target": "function",
+        "scope": "same",
+        "relType": "flow"
+      },
+      {
+        "id": "r_mu68sw8p_19",
+        "source": "service",
+        "target": "event",
+        "scope": "same",
+        "relType": "triggering"
+      },
+      {
+        "id": "r_mu68sw8p_1a",
+        "source": "function",
+        "target": "event",
+        "scope": "same",
+        "relType": "triggering"
+      },
+      {
+        "id": "r_mu68sw8p_1b",
+        "source": "*",
+        "target": "*",
+        "scope": "any",
+        "relType": "flow"
+      }
+    ],
+    "defaultLaneTemplate": [
+      "services",
+      "functions",
+      "events",
+      "data"
+    ],
+    "providers": [
+      {
+        "id": "azure",
+        "name": "Azure"
+      }
+    ],
+    "artifactTypes": [
+      {
+        "id": "container-image",
+        "name": "Container image"
+      },
+      {
+        "id": "compiled-package",
+        "name": "Compiled application package"
+      },
+      {
+        "id": "source-package",
+        "name": "Source package"
+      },
+      {
+        "id": "web-deploy-package",
+        "name": "Web Deploy package"
+      },
+      {
+        "id": "jar",
+        "name": "JAR"
+      },
+      {
+        "id": "war",
+        "name": "WAR"
+      },
+      {
+        "id": "static-web-bundle",
+        "name": "Static web bundle"
+      },
+      {
+        "id": "installer",
+        "name": "Installer"
+      },
+      {
+        "id": "executable",
+        "name": "Executable / binary"
+      },
+      {
+        "id": "vm-image",
+        "name": "VM image"
+      },
+      {
+        "id": "service-fabric-package",
+        "name": "Service Fabric application package"
+      },
+      {
+        "id": "cloud-service-package",
+        "name": "Cloud Service package"
+      },
+      {
+        "id": "python-wheel",
+        "name": "Python wheel"
+      },
+      {
+        "id": "notebook",
+        "name": "Notebook"
+      },
+      {
+        "id": "ml-model",
+        "name": "ML model artifact"
+      },
+      {
+        "id": "workflow-definition",
+        "name": "Workflow definition"
+      },
+      {
+        "id": "pipeline-definition",
+        "name": "Pipeline definition"
+      },
+      {
+        "id": "api-definition",
+        "name": "API definition with policies"
+      },
+      {
+        "id": "iis-deployment",
+        "name": "IIS deployment"
+      }
+    ],
+    "technologyServices": [
+      {
+        "id": "ts-virtual-machines",
+        "name": "Azure Virtual Machines",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image",
+          "compiled-package",
+          "web-deploy-package",
+          "jar",
+          "war",
+          "installer",
+          "executable",
+          "vm-image",
+          "iis-deployment"
+        ]
+      },
+      {
+        "id": "ts-vm-scale-sets",
+        "name": "VM Scale Sets",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "vm-image"
+        ]
+      },
+      {
+        "id": "ts-app-service-code",
+        "name": "App Service (code)",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "compiled-package",
+          "source-package",
+          "web-deploy-package",
+          "jar",
+          "war",
+          "static-web-bundle"
+        ]
+      },
+      {
+        "id": "ts-app-service-containers",
+        "name": "App Service (Web App for Containers)",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image"
+        ]
+      },
+      {
+        "id": "ts-static-web-apps",
+        "name": "Static Web Apps",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "static-web-bundle"
+        ]
+      },
+      {
+        "id": "ts-functions",
+        "name": "Azure Functions",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image",
+          "compiled-package",
+          "source-package"
+        ]
+      },
+      {
+        "id": "ts-logic-apps-consumption",
+        "name": "Logic Apps Consumption",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "workflow-definition"
+        ]
+      },
+      {
+        "id": "ts-logic-apps-standard",
+        "name": "Logic Apps Standard",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "compiled-package"
+        ]
+      },
+      {
+        "id": "ts-container-apps",
+        "name": "Azure Container Apps",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image"
+        ]
+      },
+      {
+        "id": "ts-aks",
+        "name": "Azure Kubernetes Service",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image"
+        ]
+      },
+      {
+        "id": "ts-aro",
+        "name": "Azure Red Hat OpenShift",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image"
+        ]
+      },
+      {
+        "id": "ts-container-instances",
+        "name": "Azure Container Instances",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image"
+        ]
+      },
+      {
+        "id": "ts-container-registry",
+        "name": "Azure Container Registry",
+        "providerId": "azure",
+        "artifactTypeIds": []
+      },
+      {
+        "id": "ts-batch",
+        "name": "Azure Batch",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image",
+          "compiled-package",
+          "executable",
+          "vm-image",
+          "python-wheel"
+        ]
+      },
+      {
+        "id": "ts-service-fabric",
+        "name": "Service Fabric",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "container-image",
+          "service-fabric-package"
+        ]
+      },
+      {
+        "id": "ts-spring-apps",
+        "name": "Azure Spring Apps",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "jar"
+        ]
+      },
+      {
+        "id": "ts-cloud-services",
+        "name": "Cloud Services (extended support)",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "cloud-service-package"
+        ]
+      },
+      {
+        "id": "ts-databricks",
+        "name": "Azure Databricks",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "jar",
+          "python-wheel",
+          "notebook"
+        ]
+      },
+      {
+        "id": "ts-data-factory",
+        "name": "Data Factory / Synapse pipelines",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "notebook",
+          "pipeline-definition"
+        ]
+      },
+      {
+        "id": "ts-machine-learning",
+        "name": "Azure Machine Learning (managed endpoints)",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "python-wheel",
+          "notebook",
+          "ml-model"
+        ]
+      },
+      {
+        "id": "ts-api-management",
+        "name": "API Management",
+        "providerId": "azure",
+        "artifactTypeIds": [
+          "api-definition"
+        ]
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "c_mu68sw8p_1c",
+      "title": "Vet practice (VPMS / Tyro)",
+      "description": "External vet software and Tyro gateway",
+      "color": "#6b7a99",
+      "external": true,
+      "laneRoles": [
+        "services",
+        "functions"
+      ]
+    },
+    {
+      "id": "c_mu68sw8p_1e",
+      "title": "VetHub",
+      "description": "Claim intake from the vet practice",
+      "color": "#4a8fb0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "data"
+      ],
+      "techServices": [
+        {
+          "technologyServiceId": "ts-app-service-code",
+          "artifactTypeId": "compiled-package"
+        }
+      ]
+    },
+    {
+      "id": "c_mu68sw8p_1f",
+      "title": "COS",
+      "description": "Claim Orchestration Service",
+      "color": "#e2a2ca",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "data"
+      ]
+    },
+    {
+      "id": "c_muamvohy_3k",
+      "title": "Claim Automation",
+      "description": "Treatment-code prediction",
+      "color": "#4a8fb0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions"
+      ]
+    },
+    {
+      "id": "c_mu68sw8p_1g",
+      "title": "Claims API (CLAPI)",
+      "description": "Routes claim submission to the right DAPI",
+      "color": "#b06d8a",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions"
+      ]
+    },
+    {
+      "id": "c_mu6gjkxs_6z",
+      "title": "Digital API (DAPI)",
+      "description": "CSP.Au.DigitalApi – stages claims for UPM",
+      "color": "#b06d8a",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions"
+      ]
+    },
+    {
+      "id": "c_mu6gid7m_5i",
+      "title": "Dynamic CLAPI",
+      "description": "Routes calls to the right UPM instance (AU / Trupanion) and back to COS",
+      "color": "#b06d8a",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions"
+      ]
+    },
+    {
+      "id": "c_mu6lwr14_q8",
+      "title": "Clawdia",
+      "description": "STP medical assessment workflow",
+      "color": "#4a8fb0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions"
+      ]
+    },
+    {
+      "id": "c_x94icthf",
+      "title": "UPM database",
+      "description": "",
+      "color": "#4a8fb0",
+      "external": false,
+      "laneRoles": [
+        "data"
+      ]
+    },
+    {
+      "id": "c_mu68sw8p_1h",
+      "title": "UPM Dynamics API",
+      "description": "",
+      "color": "#754ba0",
+      "external": false,
+      "laneRoles": [
+        "services"
+      ]
+    },
+    {
+      "id": "c_mu6lzxlj_sm",
+      "title": "ML Environment",
+      "description": "Prediction models",
+      "color": "#4a8fb0",
+      "external": false,
+      "laneRoles": [
+        "services",
+        "functions",
+        "data"
+      ]
+    },
+    {
+      "id": "c_mu68sw8p_1j",
+      "title": "UPM+",
+      "description": "Insurance ERP – policy and claims",
+      "color": "#754ba0",
+      "external": false,
+      "laneRoles": [
+        "functions"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "a_vet_submit",
+      "componentId": "c_mu68sw8p_1c",
+      "laneRole": "functions",
+      "executionUnit": 1,
+      "nodeTypeId": "function",
+      "label": "Submit claim (C3)",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_start",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "services",
+      "executionUnit": 1,
+      "nodeTypeId": "service",
+      "label": "Start conversation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "GET /api/Claim/NewConversationId",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_save",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "functions",
+      "executionUnit": 1,
+      "nodeTypeId": "function",
+      "label": "Save conversation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_conv",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "data",
+      "executionUnit": 1,
+      "nodeTypeId": "data",
+      "label": "VetHub conversation",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_details",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "services",
+      "executionUnit": 2,
+      "nodeTypeId": "service",
+      "label": "Receive claim details (VetXML)",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "POST /api/Claim/{conversationId}",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_type",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "functions",
+      "executionUnit": 2,
+      "nodeTypeId": "function",
+      "label": "Recognise claim type",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_elig",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "functions",
+      "executionUnit": 3,
+      "nodeTypeId": "function",
+      "label": "Eligibility check",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_conv3",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "data",
+      "executionUnit": 3,
+      "nodeTypeId": "data",
+      "label": "VetHub conversation",
+      "isDuplicate": true,
+      "dupOf": "a_vh_conv",
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_attach",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "services",
+      "executionUnit": 4,
+      "nodeTypeId": "service",
+      "label": "Receive attachments",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_invoice",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "functions",
+      "executionUnit": 4,
+      "nodeTypeId": "function",
+      "label": "Generate invoice",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_conv4",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "data",
+      "executionUnit": 4,
+      "nodeTypeId": "data",
+      "label": "VetHub conversation",
+      "isDuplicate": true,
+      "dupOf": "a_vh_conv",
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_cos_poll",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "services",
+      "executionUnit": 5,
+      "nodeTypeId": "service",
+      "label": "Poll VetHub for submitted claims",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_cos_create",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 5,
+      "nodeTypeId": "function",
+      "label": "Create COS claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_cos_claim",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "data",
+      "executionUnit": 5,
+      "nodeTypeId": "data",
+      "label": "COS claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_cos_crn",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 6,
+      "nodeTypeId": "function",
+      "label": "Assign claim reference number (CRN)",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_cos_policy",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 7,
+      "nodeTypeId": "function",
+      "label": "Validate policy",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_cos_tcodes",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 8,
+      "nodeTypeId": "function",
+      "label": "Enrich with treatment codes",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_ca_predict",
+      "componentId": "c_muamvohy_3k",
+      "laneRole": "services",
+      "executionUnit": 8,
+      "nodeTypeId": "service",
+      "label": "Predict treatment code",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_ca_convert",
+      "componentId": "c_muamvohy_3k",
+      "laneRole": "functions",
+      "executionUnit": 8,
+      "nodeTypeId": "function",
+      "label": "Convert to treatment codes (T*)",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_ml_sj",
+      "componentId": "c_mu6lzxlj_sm",
+      "laneRole": "services",
+      "executionUnit": 8,
+      "nodeTypeId": "service",
+      "label": "Treatment-code model (Sophia Junior)",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_ml_sjmodel",
+      "componentId": "c_mu6lzxlj_sm",
+      "laneRole": "data",
+      "executionUnit": 8,
+      "nodeTypeId": "data",
+      "label": "Sophia Junior model",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_ca_rules",
+      "componentId": "c_muamvohy_3k",
+      "laneRole": "functions",
+      "executionUnit": 9,
+      "nodeTypeId": "function",
+      "label": "Apply business rules",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_ca_return",
+      "componentId": "c_muamvohy_3k",
+      "laneRole": "functions",
+      "executionUnit": 10,
+      "nodeTypeId": "function",
+      "label": "Return result to COS",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_cos_lodge",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 11,
+      "nodeTypeId": "function",
+      "label": "Lodge claim in UPM",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_clapi_submit",
+      "componentId": "c_mu68sw8p_1g",
+      "laneRole": "services",
+      "executionUnit": 12,
+      "nodeTypeId": "service",
+      "label": "Submit claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "POST api/Claims",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_clapi_route",
+      "componentId": "c_mu68sw8p_1g",
+      "laneRole": "functions",
+      "executionUnit": 12,
+      "nodeTypeId": "function",
+      "label": "Route to correct DAPI",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dapi_submit",
+      "componentId": "c_mu6gjkxs_6z",
+      "laneRole": "services",
+      "executionUnit": 12,
+      "nodeTypeId": "service",
+      "label": "Submit claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dapi_stage",
+      "componentId": "c_mu6gjkxs_6z",
+      "laneRole": "functions",
+      "executionUnit": 12,
+      "nodeTypeId": "function",
+      "label": "Stage claim in DS tables",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_db_ds",
+      "componentId": "c_x94icthf",
+      "laneRole": "data",
+      "executionUnit": 12,
+      "nodeTypeId": "data",
+      "label": "DS* staging tables",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_clapi_finish",
+      "componentId": "c_mu68sw8p_1g",
+      "laneRole": "services",
+      "executionUnit": 13,
+      "nodeTypeId": "service",
+      "label": "Finish claim submission",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "PUT api/Claims/FinishSubmitClaim",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_clapi_route13",
+      "componentId": "c_mu68sw8p_1g",
+      "laneRole": "functions",
+      "executionUnit": 13,
+      "nodeTypeId": "function",
+      "label": "Route to correct DAPI",
+      "isDuplicate": true,
+      "dupOf": "a_clapi_route",
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dapi_finish",
+      "componentId": "c_mu6gjkxs_6z",
+      "laneRole": "services",
+      "executionUnit": 13,
+      "nodeTypeId": "service",
+      "label": "Finish claim submission",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dapi_update",
+      "componentId": "c_mu6gjkxs_6z",
+      "laneRole": "functions",
+      "executionUnit": 13,
+      "nodeTypeId": "function",
+      "label": "Update DS tables",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_db_ds13",
+      "componentId": "c_x94icthf",
+      "laneRole": "data",
+      "executionUnit": 13,
+      "nodeTypeId": "data",
+      "label": "DS* staging tables",
+      "isDuplicate": true,
+      "dupOf": "a_db_ds",
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_upmapi_poll",
+      "componentId": "c_mu68sw8p_1h",
+      "laneRole": "services",
+      "executionUnit": 14,
+      "nodeTypeId": "service",
+      "label": "Poll DS tables (every 10 min)",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dyn_lodge",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "services",
+      "executionUnit": 15,
+      "nodeTypeId": "service",
+      "label": "Lodge claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dyn_route",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "functions",
+      "executionUnit": 15,
+      "nodeTypeId": "function",
+      "label": "Route lodgement to correct UPM",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_upmapi_lodge",
+      "componentId": "c_mu68sw8p_1h",
+      "laneRole": "services",
+      "executionUnit": 16,
+      "nodeTypeId": "service",
+      "label": "Lodge claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_upm_ingest",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 16,
+      "nodeTypeId": "function",
+      "label": "Ingest claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_upm_dupe",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 17,
+      "nodeTypeId": "function",
+      "label": "Duplicate check",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_upm_fraud",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 18,
+      "nodeTypeId": "function",
+      "label": "Fraud check",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_upm_bank",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 19,
+      "nodeTypeId": "function",
+      "label": "Bank details check",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_upm_reqma",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 20,
+      "nodeTypeId": "function",
+      "label": "Request medical assessment",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dyn_clawinit",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "services",
+      "executionUnit": 20,
+      "nodeTypeId": "service",
+      "label": "Start Clawdia (CLAW-INIT)",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "POST api/Claims/CLAW-INIT-API",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_claw_init",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "services",
+      "executionUnit": 21,
+      "nodeTypeId": "service",
+      "label": "Initialise assessment",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_claw_loadclaim",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 21,
+      "nodeTypeId": "function",
+      "label": "Load claim data",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_claw_loadpolicy",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 22,
+      "nodeTypeId": "function",
+      "label": "Load policy data",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_claw_cohort",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 23,
+      "nodeTypeId": "function",
+      "label": "Easy-cohort check",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_claw_gp",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 24,
+      "nodeTypeId": "function",
+      "label": "Call GP model",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_ml_ma",
+      "componentId": "c_mu6lzxlj_sm",
+      "laneRole": "services",
+      "executionUnit": 24,
+      "nodeTypeId": "service",
+      "label": "Claim medical assessment",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_ml_diag",
+      "componentId": "c_mu6lzxlj_sm",
+      "laneRole": "functions",
+      "executionUnit": 24,
+      "nodeTypeId": "function",
+      "label": "Predict diagnosis code",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_claw_rules",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 25,
+      "nodeTypeId": "function",
+      "label": "Apply business rules to prediction",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_ml_caselink",
+      "componentId": "c_mu6lzxlj_sm",
+      "laneRole": "functions",
+      "executionUnit": 25,
+      "nodeTypeId": "function",
+      "label": "Case linking",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_claw_map",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 26,
+      "nodeTypeId": "function",
+      "label": "Map into claim logic",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_claw_prepare",
+      "componentId": "c_mu6lwr14_q8",
+      "laneRole": "functions",
+      "executionUnit": 27,
+      "nodeTypeId": "function",
+      "label": "Prepare UPM write request",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dyn_write",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "services",
+      "executionUnit": 27,
+      "nodeTypeId": "service",
+      "label": "Write assessment",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "POST api/Claims/Write",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dyn_route2",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "functions",
+      "executionUnit": 28,
+      "nodeTypeId": "function",
+      "label": "Route write to correct UPM",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_upmapi_write",
+      "componentId": "c_mu68sw8p_1h",
+      "laneRole": "services",
+      "executionUnit": 28,
+      "nodeTypeId": "service",
+      "label": "Write assessment",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_upm_benefit",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 28,
+      "nodeTypeId": "function",
+      "label": "Calculate benefit",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_upm_pay",
+      "componentId": "c_mu68sw8p_1j",
+      "laneRole": "functions",
+      "executionUnit": 29,
+      "nodeTypeId": "function",
+      "label": "Settle payment",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dyn_gap",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "services",
+      "executionUnit": 30,
+      "nodeTypeId": "service",
+      "label": "Gap-only benefit",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_dyn_routecos",
+      "componentId": "c_mu6gid7m_5i",
+      "laneRole": "functions",
+      "executionUnit": 31,
+      "nodeTypeId": "function",
+      "label": "Route to correct COS",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_cos_gap",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "services",
+      "executionUnit": 31,
+      "nodeTypeId": "service",
+      "label": "Receive gap-only benefit",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "POST /api/GapOnlyBenefit",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_cos_prep",
+      "componentId": "c_mu68sw8p_1f",
+      "laneRole": "functions",
+      "executionUnit": 32,
+      "nodeTypeId": "function",
+      "label": "Prepare benefit for VetHub",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_gap",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "services",
+      "executionUnit": 32,
+      "nodeTypeId": "service",
+      "label": "Receive gap-only benefit amount",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "POST /api/Claim/{conversationId}/GapOnly/BenefitAmount",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_update",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "functions",
+      "executionUnit": 33,
+      "nodeTypeId": "function",
+      "label": "Update benefit on claim",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vh_conv33",
+      "componentId": "c_mu68sw8p_1e",
+      "laneRole": "data",
+      "executionUnit": 33,
+      "nodeTypeId": "data",
+      "label": "VetHub conversation",
+      "isDuplicate": true,
+      "dupOf": "a_vh_conv",
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vet_outcome",
+      "componentId": "c_mu68sw8p_1c",
+      "laneRole": "services",
+      "executionUnit": 34,
+      "nodeTypeId": "service",
+      "label": "Receive gap-only outcome",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    },
+    {
+      "id": "a_vet_poll",
+      "componentId": "c_mu68sw8p_1c",
+      "laneRole": "functions",
+      "executionUnit": 35,
+      "nodeTypeId": "function",
+      "label": "Poll for claim outcome",
+      "isDuplicate": false,
+      "dupOf": null,
+      "subRow": 0,
+      "restApi": false,
+      "httpMethod": "",
+      "url": "",
+      "description": "",
+      "properties": [],
+      "snakeStart": false
+    }
+  ],
+  "connections": [
+    {
+      "id": "cn_001",
+      "sourceNodeId": "a_vet_submit",
+      "targetNodeId": "a_vh_start",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_002",
+      "sourceNodeId": "a_vh_start",
+      "targetNodeId": "a_vh_save",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_003",
+      "sourceNodeId": "a_vh_save",
+      "targetNodeId": "a_vh_conv",
+      "relTypeId": "access",
+      "label": "create",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_004",
+      "sourceNodeId": "a_vet_submit",
+      "targetNodeId": "a_vh_details",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_005",
+      "sourceNodeId": "a_vh_details",
+      "targetNodeId": "a_vh_type",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_006",
+      "sourceNodeId": "a_vh_save",
+      "targetNodeId": "a_vh_type",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_007",
+      "sourceNodeId": "a_vh_type",
+      "targetNodeId": "a_vh_elig",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_008",
+      "sourceNodeId": "a_vh_elig",
+      "targetNodeId": "a_vh_conv3",
+      "relTypeId": "access",
+      "label": "write",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_009",
+      "sourceNodeId": "a_vet_submit",
+      "targetNodeId": "a_vh_attach",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_010",
+      "sourceNodeId": "a_vh_attach",
+      "targetNodeId": "a_vh_invoice",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_011",
+      "sourceNodeId": "a_vh_invoice",
+      "targetNodeId": "a_vh_conv4",
+      "relTypeId": "access",
+      "label": "write",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_012",
+      "sourceNodeId": "a_cos_poll",
+      "targetNodeId": "a_vh_conv4",
+      "relTypeId": "access",
+      "label": "read",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_013",
+      "sourceNodeId": "a_cos_poll",
+      "targetNodeId": "a_cos_create",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_014",
+      "sourceNodeId": "a_cos_create",
+      "targetNodeId": "a_cos_claim",
+      "relTypeId": "access",
+      "label": "create",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_015",
+      "sourceNodeId": "a_cos_create",
+      "targetNodeId": "a_cos_crn",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_016",
+      "sourceNodeId": "a_cos_crn",
+      "targetNodeId": "a_cos_policy",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_017",
+      "sourceNodeId": "a_cos_policy",
+      "targetNodeId": "a_cos_tcodes",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_018",
+      "sourceNodeId": "a_cos_tcodes",
+      "targetNodeId": "a_ca_predict",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_019",
+      "sourceNodeId": "a_ca_predict",
+      "targetNodeId": "a_ca_convert",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_020",
+      "sourceNodeId": "a_ca_convert",
+      "targetNodeId": "a_ml_sj",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_021",
+      "sourceNodeId": "a_ml_sj",
+      "targetNodeId": "a_ml_sjmodel",
+      "relTypeId": "access",
+      "label": "read",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_022",
+      "sourceNodeId": "a_ca_convert",
+      "targetNodeId": "a_ca_rules",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_023",
+      "sourceNodeId": "a_ca_rules",
+      "targetNodeId": "a_ca_return",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_024",
+      "sourceNodeId": "a_cos_tcodes",
+      "targetNodeId": "a_cos_lodge",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_025",
+      "sourceNodeId": "a_cos_lodge",
+      "targetNodeId": "a_clapi_submit",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_026",
+      "sourceNodeId": "a_clapi_submit",
+      "targetNodeId": "a_clapi_route",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_027",
+      "sourceNodeId": "a_clapi_route",
+      "targetNodeId": "a_dapi_submit",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_028",
+      "sourceNodeId": "a_dapi_submit",
+      "targetNodeId": "a_dapi_stage",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_029",
+      "sourceNodeId": "a_dapi_stage",
+      "targetNodeId": "a_db_ds",
+      "relTypeId": "access",
+      "label": "insert",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_030",
+      "sourceNodeId": "a_cos_lodge",
+      "targetNodeId": "a_clapi_finish",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_031",
+      "sourceNodeId": "a_clapi_finish",
+      "targetNodeId": "a_clapi_route13",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_032",
+      "sourceNodeId": "a_clapi_route13",
+      "targetNodeId": "a_dapi_finish",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_033",
+      "sourceNodeId": "a_dapi_finish",
+      "targetNodeId": "a_dapi_update",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_034",
+      "sourceNodeId": "a_dapi_update",
+      "targetNodeId": "a_db_ds13",
+      "relTypeId": "access",
+      "label": "update",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_035",
+      "sourceNodeId": "a_upmapi_poll",
+      "targetNodeId": "a_db_ds13",
+      "relTypeId": "access",
+      "label": "read",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_036",
+      "sourceNodeId": "a_cos_lodge",
+      "targetNodeId": "a_dyn_lodge",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_037",
+      "sourceNodeId": "a_dyn_lodge",
+      "targetNodeId": "a_dyn_route",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_038",
+      "sourceNodeId": "a_dyn_route",
+      "targetNodeId": "a_upmapi_lodge",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_039",
+      "sourceNodeId": "a_upmapi_lodge",
+      "targetNodeId": "a_upm_ingest",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_040",
+      "sourceNodeId": "a_upmapi_poll",
+      "targetNodeId": "a_upm_ingest",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_041",
+      "sourceNodeId": "a_upm_ingest",
+      "targetNodeId": "a_upm_dupe",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_042",
+      "sourceNodeId": "a_upm_dupe",
+      "targetNodeId": "a_upm_fraud",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_043",
+      "sourceNodeId": "a_upm_fraud",
+      "targetNodeId": "a_upm_bank",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_044",
+      "sourceNodeId": "a_upm_bank",
+      "targetNodeId": "a_upm_reqma",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_045",
+      "sourceNodeId": "a_upm_reqma",
+      "targetNodeId": "a_dyn_clawinit",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_046",
+      "sourceNodeId": "a_dyn_clawinit",
+      "targetNodeId": "a_claw_init",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_047",
+      "sourceNodeId": "a_claw_init",
+      "targetNodeId": "a_claw_loadclaim",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_048",
+      "sourceNodeId": "a_claw_loadclaim",
+      "targetNodeId": "a_claw_loadpolicy",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_049",
+      "sourceNodeId": "a_claw_loadpolicy",
+      "targetNodeId": "a_claw_cohort",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_050",
+      "sourceNodeId": "a_claw_cohort",
+      "targetNodeId": "a_claw_gp",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_051",
+      "sourceNodeId": "a_claw_gp",
+      "targetNodeId": "a_ml_ma",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_052",
+      "sourceNodeId": "a_ml_ma",
+      "targetNodeId": "a_ml_diag",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_053",
+      "sourceNodeId": "a_ml_diag",
+      "targetNodeId": "a_ml_caselink",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_054",
+      "sourceNodeId": "a_claw_gp",
+      "targetNodeId": "a_claw_rules",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_055",
+      "sourceNodeId": "a_claw_rules",
+      "targetNodeId": "a_claw_map",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_056",
+      "sourceNodeId": "a_claw_map",
+      "targetNodeId": "a_claw_prepare",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_057",
+      "sourceNodeId": "a_claw_prepare",
+      "targetNodeId": "a_dyn_write",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_058",
+      "sourceNodeId": "a_dyn_write",
+      "targetNodeId": "a_dyn_route2",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_059",
+      "sourceNodeId": "a_dyn_route2",
+      "targetNodeId": "a_upmapi_write",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_060",
+      "sourceNodeId": "a_upmapi_write",
+      "targetNodeId": "a_upm_benefit",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_061",
+      "sourceNodeId": "a_upm_reqma",
+      "targetNodeId": "a_upm_benefit",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_062",
+      "sourceNodeId": "a_upm_benefit",
+      "targetNodeId": "a_upm_pay",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_063",
+      "sourceNodeId": "a_upm_benefit",
+      "targetNodeId": "a_dyn_gap",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_064",
+      "sourceNodeId": "a_dyn_gap",
+      "targetNodeId": "a_dyn_routecos",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_065",
+      "sourceNodeId": "a_dyn_routecos",
+      "targetNodeId": "a_cos_gap",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_066",
+      "sourceNodeId": "a_cos_gap",
+      "targetNodeId": "a_cos_prep",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_067",
+      "sourceNodeId": "a_cos_prep",
+      "targetNodeId": "a_vh_gap",
+      "relTypeId": "serving",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_068",
+      "sourceNodeId": "a_vh_gap",
+      "targetNodeId": "a_vh_update",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_069",
+      "sourceNodeId": "a_vh_update",
+      "targetNodeId": "a_vh_conv33",
+      "relTypeId": "access",
+      "label": "update benefit",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_070",
+      "sourceNodeId": "a_vh_update",
+      "targetNodeId": "a_vet_outcome",
+      "relTypeId": "flow",
+      "label": "",
+      "routingOverride": null
+    },
+    {
+      "id": "cn_071",
+      "sourceNodeId": "a_vet_poll",
+      "targetNodeId": "a_vh_conv33",
+      "relTypeId": "access",
+      "label": "read",
+      "routingOverride": null
+    }
+  ]
+}
