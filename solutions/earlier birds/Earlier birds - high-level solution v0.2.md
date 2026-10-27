@@ -141,22 +141,38 @@ What changes:
 A light-weight view for now, to be detailed with the component architecture.
 
 - **Azure Service Bus:** existing namespaces (SYD and MEL, already used by VetHub and COS through NServiceBus). New topics for VetHub and COS business events, one subscription per handler.
-- **Azure Functions:** event handlers for *Conversation Initiated* (start Clawdia) and *Conversation Completed* (call the COS start-claim API). If the routing context is handed over with Option 1 of §1.5, the second handler becomes a **Durable Functions** orchestrator, which needs its own storage (task hub).
+- **Azure Functions:** event handlers for *Conversation Initiated* (start Clawdia) and *Conversation Completed* (call the COS start-claim API). If the routing context is handed over with Option 1 of §1.5, the second handler becomes a **Durable Functions** orchestrator, which needs its own storage (task hub). With Option 3, VetHub also stores the VetXml in the File Storage API, next to the attachments it already stores there.
 - **Clawdia workflow correlations:** correlation is by `conversationId` first and by CRN once COS has generated it (OQ-04). **If the Clawdia runtime cannot correlate a waiting instance by these keys, a correlation repository (`conversationId`, CRN → workflow instance id) is needed.** Store and owner [TBC].
 - **COS:** the new start-claim API is hosted in the existing COS API (IIS on Azure VMs), one per insurer environment (AU, NZ, VP).
 
 ### 1.5 Insurer routing context: hand-over to COS
 
-*Insurer Routing Context Calculated* has no consumer yet. Two options are on the table; the choice is open (OQ-08).
+*Insurer Routing Context Calculated* has no consumer yet. Three options are on the table; the choice is open (OQ-08).
 
-| | Option 1 — Durable Functions orchestrator | Option 2 — context stored in VetHub |
-|---|---|---|
-| **How it works** | A Durable Functions orchestrator, keyed by `conversationId`, collects *Conversation Initiated* (new conversation id), *Insurer Routing Context Calculated* and *Conversation Completed*, then submits the request to the COS of the right insurer environment | VetHub saves the routing context on the conversation in its DB. COS reads it from VetHub when it retrieves the claim |
-| **Request to COS** | `conversationId` and the routing context. Could also carry the VetXml data and the links to the attachments, so **COS no longer needs to read the VetHub DB** | Only the `conversationId` |
-| **COS call into Clawdia** | `conversationId` (session id), CRN, policy number, routing context | `conversationId` (session id), CRN, policy number |
-| **Consumer of *Insurer Routing Context Calculated*** | The orchestrator | None for now (event kept for future consumers) |
-| **Pros** | Full decoupling of COS from VetHub's data; one place that knows when a conversation is ready | Smallest change; fits the MVP that reuses COS's download step |
-| **Cons** | New stateful component (task hub, replay, versioning) | COS keeps reading VetHub's data; routing context not visible on the bus |
+| | Option 1 — Durable Functions orchestrator | Option 2 — context stored in VetHub | Option 3 — enriched event with claim check |
+|---|---|---|---|
+| **How it works** | A Durable Functions orchestrator, keyed by `conversationId`, collects *Conversation Initiated* (new conversation id), *Insurer Routing Context Calculated* and *Conversation Completed*, then submits the request to the COS of the right insurer environment | VetHub saves the routing context on the conversation in its DB. COS reads it from VetHub when it retrieves the claim | VetHub publishes all three events, so it puts the routing context straight into *Conversation Completed*, plus **references** (claim check) to the stored VetXml and attachments, not the content. A stateless Function routes the event to the COS of the right insurer environment |
+| **Request to COS** | `conversationId` and the routing context. Could also carry the VetXml data and the links to the attachments, so **COS no longer needs to read the VetHub DB** | Only the `conversationId` | `conversationId`, routing context, link to the VetXml, links to the attachments. COS fetches the content from storage, not from the VetHub DB |
+| **COS call into Clawdia** | `conversationId` (session id), CRN, policy number, routing context | `conversationId` (session id), CRN, policy number | `conversationId` (session id), CRN, policy number, routing context |
+| **Consumer of *Insurer Routing Context Calculated*** | The orchestrator | None for now (event kept for future consumers) | None needed for the hand-over; the event can still serve Clawdia (to start once the insurer is known) or future consumers |
+| **Message size** | The VetXml has to reach the orchestrator through *Conversation Completed*, so the size limit below applies if it is inlined | Small (ids only) | Small and bounded: about 1–2 KB plus headers, whatever the size of the claim |
+| **Pros** | Full decoupling of COS from VetHub's data; one place that knows when a conversation is ready | Smallest change; fits the MVP that reuses COS's download step | No stateful component; COS decoupled from VetHub's DB; event size independent of the claim; attachments already live in the File Storage API |
+| **Cons** | New stateful component (task hub, replay, versioning); payload size if the VetXml is inlined | COS keeps reading VetHub's data; routing context not visible on the bus | VetHub must store the VetXml where COS can read it (e.g. File Storage API) and grant access by insurer; the link must outlive retries and replays |
+
+**Message size: why the VetXml should not travel inside the event**
+
+Rough size of a VetXml claim (`docs/systems/VetHub/InsuranceClaim_VetHub_V5.xsd`) with 3 invoices and 20 invoice line items, built from the schema with realistic values. Attachments are not inside the VetXml (only their names, ids and content types), but `AnimalClinicalHistory` and `ConsultationNotes` are unbounded free text.
+
+| Claim | Clinical history | Consultation note | VetXml (indented) | Inside a JSON message body | Gzip |
+|---|---|---|---|---|---|
+| Typical | 15 entries × 300 chars | 2,000 chars | ~25 KB | ~25–34 KB | ~4–8 KB |
+| **Long (the case asked)** | 60 entries × 500 chars | 8,000 chars | **~63 KB** | **~64–76 KB** | ~11–20 KB |
+| Very long | 200 entries × 800 chars | 20,000 chars | ~224 KB | ~225–252 KB | ~40–75 KB |
+
+- The JSON range depends on the serializer: Json.NET adds little; System.Text.Json's default encoder escapes every `<` and `>` as `<`, adding about 20%. Base64 would add a third.
+- Gzip figures are a range: the sample text repeats words, so real notes compress less (about 3–5×).
+- **Azure Service Bus limits:** 256 KB per message on the Standard tier, headers included (NServiceBus adds a few KB of headers); up to 100 MB on Premium (1 MB by default per entity). The tier of the SYD/MEL namespaces is [TBC].
+- **Conclusion:** a long claim fits, but the clinical history has no upper bound, so a very long one comes close to or exceeds the Standard limit. Inlining the VetXml (Option 1 variant) would need compression or a size check with a fallback. Option 3 avoids the problem by design: the event carries only references.
 
 ---
 
@@ -250,6 +266,7 @@ To be quantified with production data before the business case is presented.
 | AP-12 | Speculative (eager) processing | Clawdia assesses before the claim is lodged | Takes the assessment off the critical path | ML and Logic App cost for abandoned conversations (§2.5); result may go stale if the claim changes |
 | AP-13 | Correlated Process Inbox (candidate) | Future events reaching a waiting Clawdia instance (see `docs/correlated-process-inbox-pattern.md`, itself still under review) | One mailbox per business key, ordered, effectively-once | Not needed for the first increment |
 | AP-14 | Event aggregator (Durable Functions orchestrator), candidate | Option 1 of §1.5: wait for the three VetHub events, then call COS | One place that knows when a conversation is complete | Stateful component to run and version |
+| AP-15 | Event-carried state transfer with claim check, candidate | Option 3 of §1.5: *Conversation Completed* carries the routing context and links to the stored VetXml and attachments | Consumers get what they need without reading the producer's DB; message size stays bounded | Storage access rights per insurer; link lifetime vs retries and replays |
 
 ---
 
@@ -324,7 +341,7 @@ _To be completed._
 | VH-I-01 | Calculate insurer routing context | **Today VetHub does not call COS:** each COS (AU, NZ, VP) polls VetHub for the conversations of its insurer. In the target, VetHub determines the routing context so that *Conversation Completed* triggers the request to the new API of the right COS. **When:** before or during the Eligibility Check, in `POST api/Claim/{conversationId}` (SubmitClaim), where VetHub already runs the GapOnly checks and the insurer-routed policy lookup (Claims API `api/Policy/Find` on the AU, NZ or VP stack). **Inputs** already in VetHub: the vet practice and location, the `InsuranceProvider` / `InsuranceBrand` and `PlanNumber` reference data, the policy found, and the `InsurerRouting:*`, `Claims:DefaultInsuranceProviderId(ForNZ)` and `VetPartners:InsuranceProviderId` settings. **Output:** insurer (`InsuranceProviderId`, brand) and insurer environment (COS instance, DAPI or Boomi target, UPM instance, storage container), stored on the conversation. The context is decided by the insurer environment; requirements are noted in `solutions/multi insurer environments` so they can be extended. Change: CH-03 |
 | VH-I-02 | Publish *Conversation Initiated* | When the new conversation is saved (`GET api/Claim/NewConversationId`). Payload `conversationId` [payload TBC]. Change: CH-01, CH-04 |
 | VH-I-03 | Publish *Insurer Routing Context Calculated* | Once the routing context is known. Consumer depends on the option chosen in §1.5. Change: CH-01, CH-03 |
-| VH-I-04 | Publish *Conversation Completed* | When the claim is ready to download: the VetHub.Service pipeline has generated the PDFs, moved the attachments and set the conversation to `ClaimReadyToDownload` (13000). Carries `conversationId` (and the routing context with Option 1). Change: CH-01, CH-02 |
+| VH-I-04 | Publish *Conversation Completed* | When the claim is ready to download: the VetHub.Service pipeline has generated the PDFs, moved the attachments and set the conversation to `ClaimReadyToDownload` (13000). Carries `conversationId`; with Option 3 of §1.5 also the routing context and links to the stored VetXml and attachments. Change: CH-01, CH-02 |
 | VH-I-05 | Reliable event publication | Outbox or equivalent so state changes and events never diverge; validate against the event schema before publishing. Change: CH-01 |
 
 ##### To evolve
@@ -387,7 +404,7 @@ _To be completed._
 
 | ID | Behaviour | Description |
 |---|---|---|
-| COS-I-01 | Start claim from conversation API | New API in each COS instance, idempotent on `conversationId`; replaces the VetHub Poller as the start of the flow. **MVP:** the request contains only the `conversationId`, and COS reuses the part of today's polling mechanism that retrieves the claim: the VetHub Claims Saga steps LoadConversations (save conversation, generate CRN), SaveClaims (download claim and attachments from VetHub, confirm download) and ProcessClaims (VetXml → COS claim, `Claim` command to the Claim Submission Saga). Only the poller timer is skipped. **Later (Option 1 of §1.5):** the request also carries the routing context, the VetXml data and the attachment links, so COS no longer reads VetHub's data. Change: CH-02 |
+| COS-I-01 | Start claim from conversation API | New API in each COS instance, idempotent on `conversationId`; replaces the VetHub Poller as the start of the flow. **MVP:** the request contains only the `conversationId`, and COS reuses the part of today's polling mechanism that retrieves the claim: the VetHub Claims Saga steps LoadConversations (save conversation, generate CRN), SaveClaims (download claim and attachments from VetHub, confirm download) and ProcessClaims (VetXml → COS claim, `Claim` command to the Claim Submission Saga). Only the poller timer is skipped. **Later (Option 1 or 3 of §1.5):** the request also carries the routing context and links to the VetXml and the attachments (Option 3), or the VetXml itself (Option 1), so COS no longer reads VetHub's data. Change: CH-02 |
 | COS-I-02 | Publish *Claim Initiated in COS* | After the CRN is generated. Payload `conversationId`, CRN [TBC]. Change: CH-01, CH-05 |
 | COS-I-03 | Routing-context resolver | Maps the routing context to the DAPI (or Boomi) target and UPM Dynamics API instance to call. Replaces CLAPI's routing and Dynamic CLAPI's lodgement routing for this flow. Change: CH-03 |
 | COS-I-04 | Call the Clawdia workflow during the claim submission saga | A simple call: session id = `conversationId`; payload = CRN, policy number and, when Option 1 of §1.5 (Durable Functions) is used, the insurer routing context. From then on the workflow can be found by CRN. Change: CH-05 |
@@ -669,7 +686,7 @@ None.
 | # | Open question | Affects |
 |---|---|---|
 | OQ-07 | Does Claw Init carry the CRN? The correlation answer (OQ-04) assumes UPM asks by CRN; if it doesn't, EVT-I-05 or a repository lookup is needed | CLW-I-04, DCL-E-01, EVT-I-05 |
-| OQ-08 | Routing context hand-over to COS: Option 1 (Durable Functions orchestrator) or Option 2 (context stored in VetHub)? See §1.5 | VH-I-03, EVT-I-04, COS-I-01, COS-I-04 |
+| OQ-08 | Routing context hand-over to COS: Option 1 (Durable Functions orchestrator), Option 2 (context stored in VetHub) or Option 3 (enriched *Conversation Completed* with claim check)? See §1.5. Also confirm the Service Bus tier, which sets the message size limit | VH-I-03, EVT-I-04, COS-I-01, COS-I-04 |
 | OQ-10 | Other consumers, outside the COS and VetHub repositories, of CLAPI *Claim Submission* / *Finish Claim Submission*, Dynamic CLAPI *Lodge Claim* and VetHub `api/Claim/NewConversations`. What is in the repositories is under *Impact* (§4.0) | CLP-D-*, DCL-D-01, VH-D-01, COS-E-02 |
 
 **Resolved questions**

@@ -1,0 +1,250 @@
+/*
+ * 2026-10-26-export-h1-prod-deployment-groups.ajs
+ * ===========================================================================
+ * Purpose        : Export every top-level group of the view
+ *                  "H1 – PROD deployment by insurer" (for example "COS Australia +
+ *                  Trupanion", "DAPI New Zealand") as its own picture:
+ *                    - PNG at 400 % (scale 4 — the highest raster scale Archi supports);
+ *                    - SVG (vector, so it stays sharp at any resolution).
+ *                  If the 400 % PNG cannot be rendered (for example not enough
+ *                  memory), the script retries at 300 % and 200 % and says so.
+ * Authored       : 2026-10-26
+ * Kind           : EXPORT (read-only in effect). Archi can only render whole views,
+ *                  so for each group the script builds a TEMPORARY view holding a copy
+ *                  of that group (same elements, sizes, colours and connections),
+ *                  renders it, then deletes that temporary view. No element,
+ *                  relationship, property or existing view is created, changed or
+ *                  deleted. The model is marked as changed (temporary views were
+ *                  added and removed); there is nothing new to save.
+ * Prerequisites  : - Archi with jArchi; the H1 model open and selected.
+ *                  - The view "H1 – PROD deployment by insurer" (created by
+ *                    dev/2026-10-26-create-h1-prod-deployment-view.ajs).
+ * Output         : One PNG and one SVG per group, named
+ *                  "<nn> - <section> - <group name>.png|svg", in the chosen folder
+ *                  (default: docs/infrastructure/diagrams in the H1 repository).
+ * Rollback       : Nothing to roll back in the model. If the script is interrupted,
+ *                  delete any leftover view whose name starts with "_tmp export – "
+ *                  (the script lists them at the start of every run).
+ * Australian English is used throughout.
+ */
+
+load(__DIR__ + "../common/h1-view-helpers.js");
+
+// ---------------------------------------------------------------- settings
+const VIEW_NAME = "H1 – PROD deployment by insurer";
+const VIEW_ID_KEY = "h1_view_id";
+const VIEW_ID_VALUE = "H1-PROD-DEPLOYMENT-BY-INSURER";
+const PNG_SCALES = [4, 3, 2];            // 400 % first; lower scales only if 400 % fails
+const EXPORT_SVG = true;                 // vector copy for unlimited resolution
+const MARGIN = 20;                       // pixels around each picture (before scaling)
+const ASK_FOR_FOLDER = true;             // false = use DEFAULT_FOLDER without asking
+const DEFAULT_FOLDER = __DIR__ + "../../docs/infrastructure/diagrams";
+const TEMP_PREFIX = "_tmp export – ";
+
+const STYLE_PROPS = ["fillColor", "alpha", "opacity", "outlineOpacity", "lineColor", "lineWidth", "fontColor",
+    "fontName", "fontSize", "fontStyle", "textAlignment", "textPosition", "figureType", "gradient",
+    "iconColor", "showIcon", "borderType", "deriveElementLineColor"];
+const CONNECTION_PROPS = ["lineColor", "lineWidth", "fontColor", "fontName", "fontSize", "fontStyle", "textPosition", "labelVisible"];
+
+const stats = { exported: 0, files: 0, fallbacks: 0, warnings: 0, errors: 0 };
+const log = {
+    info: (m) => console.log(m),
+    warn: (m) => { stats.warnings++; console.log("WARNING: " + m); },
+    error: (m) => { stats.errors++; console.error("ERROR: " + m); }
+};
+const A = H1V.toArray;
+const File = Java.type("java.io.File");
+
+// ---------------------------------------------------------------- helpers
+function findSourceView() {
+    const all = A($("view"));
+    const byName = all.filter((v) => v.name === VIEW_NAME);
+    if (byName.length === 1) { return byName[0]; }
+    if (byName.length > 1) { throw new Error(byName.length + " views are named '" + VIEW_NAME + "'. Rename the extra ones and run again."); }
+    const byProp = all.filter((v) => v.prop(VIEW_ID_KEY) === VIEW_ID_VALUE);
+    if (byProp.length === 1) { return byProp[0]; }
+    if (byProp.length > 1) {
+        throw new Error("No view is named '" + VIEW_NAME + "' and several carry " + VIEW_ID_KEY + "=" + VIEW_ID_VALUE + ": " +
+            byProp.map((v) => "'" + v.name + "'").join(", ") + ". Rename the one to export to '" + VIEW_NAME + "'.");
+    }
+    throw new Error("View '" + VIEW_NAME + "' not found. Run dev/2026-10-26-create-h1-prod-deployment-view.ajs first.");
+}
+
+function safeFileName(s) {
+    return String(s).replace(/\+/g, "and").replace(/[\\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").trim();
+}
+
+function copyProps(from, to, keys) {
+    keys.forEach((k) => {
+        try {
+            const v = from[k];
+            if (v !== undefined && v !== null) { to[k] = v; }
+        } catch (e) { /* property not supported by this object or jArchi version */ }
+    });
+}
+
+/** Copies a diagram object (and its children) under newParent. Fills idMap old id → new object. */
+function copyObject(obj, newParent, x, y, idMap) {
+    const b = obj.bounds;
+    let copy = null;
+    if (obj.type === "diagram-model-group") {
+        copy = newParent.createObject("diagram-model-group", x, y, b.width, b.height);
+        copy.name = obj.name;
+        try { copy.documentation = obj.documentation; } catch (e) { /* ignore */ }
+    } else if (obj.type === "diagram-model-note") {
+        copy = newParent.createObject("diagram-model-note", x, y, b.width, b.height);
+        try { copy.text = obj.text; } catch (e) { /* ignore */ }
+    } else if (obj.concept) {
+        copy = newParent.add(obj.concept, x, y, b.width, b.height);
+    } else {
+        log.warn("Skipped an object of type '" + obj.type + "' (not supported for copying).");
+        return;
+    }
+    copyProps(obj, copy, STYLE_PROPS);
+    idMap[obj.id] = copy;
+    A($(obj).children()).forEach((child) => {
+        if (child.type && child.type.indexOf("relationship") > 0) { return; }   // connections are copied separately
+        const cb = child.bounds;
+        copyObject(child, copy, cb.x, cb.y, idMap);
+    });
+}
+
+function copyConnections(sourceView, tempView, idMap) {
+    let n = 0;
+    A($(sourceView).find()).forEach((c) => {
+        if (!c.source || !c.target || !c.concept) { return; }               // not a connection
+        const s = idMap[c.source.id], t = idMap[c.target.id];
+        if (!s || !t) { return; }                                         // leaves the group
+        try {
+            const nc = tempView.add(c.concept, s, t);
+            copyProps(c, nc, CONNECTION_PROPS);
+            try { (c.relativeBendpoints || []).forEach((bp, i) => nc.addRelativeBendpoint(bp, i)); } catch (e) { /* no bendpoints API */ }
+            n++;
+        } catch (e) { log.warn("Connection '" + c.name + "' not copied: " + e); }
+    });
+    return n;
+}
+
+function writeBase64(path, data) {
+    $.fs.writeFile(path, data, "BASE64");
+    stats.files++;
+}
+
+function renderPng(view, basePath) {
+    for (let i = 0; i < PNG_SCALES.length; i++) {
+        const scale = PNG_SCALES[i];
+        try {
+            const data = $.model.renderViewAsBase64(view, "PNG", { scale: scale, margin: MARGIN });
+            writeBase64(basePath + ".png", data);
+            if (i > 0) { stats.fallbacks++; log.warn("'" + view.name + "' exported at " + (scale * 100) + " % (400 % failed)."); }
+            return scale;
+        } catch (e) {
+            log.warn("PNG at " + (scale * 100) + " % failed for '" + view.name + "': " + e);
+        }
+    }
+    log.error("PNG export failed at every scale for '" + view.name + "'.");
+    return 0;
+}
+
+function renderSvg(view, basePath) {
+    try {
+        const data = $.model.renderViewAsBase64(view, "SVG", { margin: MARGIN, setViewBox: true, embedFonts: false });
+        writeBase64(basePath + ".svg", data);
+        return true;
+    } catch (e) {
+        log.warn("SVG export failed for '" + view.name + "': " + e);
+        return false;
+    }
+}
+
+/**
+ * Folder picker. jArchi provides window.promptOpenDirectory({ title, filterPath });
+ * returns the chosen path, null when the user cancels, or the default when no
+ * picker is available in this jArchi version.
+ */
+function askForFolder(defaultPath) {
+    if (typeof window.promptOpenDirectory === "function") {
+        const chosen = window.promptOpenDirectory({ title: "Folder for the exported group pictures", filterPath: defaultPath });
+        return chosen ? String(chosen) : null;
+    }
+    log.warn("This jArchi version has no folder picker; using the default folder " + defaultPath +
+        " (set DEFAULT_FOLDER to change it).");
+    return defaultPath;
+}
+
+/** Section name for a group = the note on the same row to its left (Global, Australia, …). */
+function sectionOf(group, notes) {
+    const gb = group.bounds;
+    const candidates = notes.filter((n) => n.bounds.y <= gb.y + 5 && n.bounds.x < gb.x)
+        .sort((a, b) => b.bounds.y - a.bounds.y);
+    return candidates.length ? String(candidates[0].text || "").trim() : "";
+}
+
+// ---------------------------------------------------------------- main
+function main() {
+    console.show();
+    console.clear();
+    log.info("Export groups of '" + VIEW_NAME + "' — PNG " + (PNG_SCALES[0] * 100) + " %" + (EXPORT_SVG ? " + SVG" : ""));
+
+    let modelName = null;
+    try { modelName = model.name; } catch (e) { modelName = null; }
+    if (!modelName) { log.error("No model is selected. Select the H1 model in the Models tree and run again."); return; }
+
+    const leftovers = A($("view")).filter((v) => String(v.name).indexOf(TEMP_PREFIX) === 0);
+    if (leftovers.length) {
+        log.warn("Leftover temporary views from an interrupted run (delete them in Archi): " + leftovers.map((v) => "'" + v.name + "'").join(", "));
+    }
+
+    let source;
+    try { source = findSourceView(); } catch (e) { log.error(e.message); return; }
+
+    const groups = A($(source).children()).filter((o) => o.type === "diagram-model-group")
+        .sort((a, b) => (a.bounds.y - b.bounds.y) || (a.bounds.x - b.bounds.x));
+    const notes = A($(source).children()).filter((o) => o.type === "diagram-model-note");
+    if (!groups.length) { log.error("The view has no top-level groups to export."); return; }
+    log.info("Found " + groups.length + " group(s) in view '" + source.name + "'.");
+
+    let folder = new File(DEFAULT_FOLDER).getCanonicalPath();
+    if (ASK_FOR_FOLDER) {
+        const chosen = askForFolder(folder);
+        if (chosen === null) { log.info("Cancelled — nothing was exported."); return; }
+        folder = chosen;
+    }
+    const dir = new File(folder);
+    if (!dir.exists() && !dir.mkdirs()) { log.error("Could not create the folder '" + folder + "'."); return; }
+    log.info("Output folder: " + dir.getCanonicalPath());
+    log.info("");
+
+    const viewsFolder = H1V.findTopFolder("views");
+    groups.forEach((g, i) => {
+        const nn = (i + 1 < 10 ? "0" : "") + (i + 1);
+        const section = sectionOf(g, notes);
+        const base = new File(dir, safeFileName(nn + " - " + (section ? section + " - " : "") + g.name)).getPath();
+        let temp = null;
+        try {
+            temp = model.createArchimateView(TEMP_PREFIX + g.name, viewsFolder);
+            const idMap = {};
+            copyObject(g, temp, 0, 0, idMap);
+            const conns = copyConnections(source, temp, idMap);
+            const scale = renderPng(temp, base);
+            const svg = EXPORT_SVG ? renderSvg(temp, base) : false;
+            if (scale || svg) { stats.exported++; }
+            log.info(nn + "  " + g.name + "  →  " + (scale ? "PNG " + (scale * 100) + " %" : "no PNG") +
+                (EXPORT_SVG ? (svg ? " + SVG" : ", no SVG") : "") + (conns ? "  (" + conns + " connection(s))" : ""));
+        } catch (e) {
+            log.error("Group '" + g.name + "' not exported: " + e);
+        } finally {
+            if (temp) {
+                try { temp.delete(); }
+                catch (e) { log.warn("Could not delete the temporary view '" + temp.name + "'; delete it by hand. " + e); }
+            }
+        }
+    });
+
+    log.info("");
+    log.info("Done. Groups exported " + stats.exported + "/" + groups.length + ", files written " + stats.files +
+        ", lower-scale fallbacks " + stats.fallbacks + ", warnings " + stats.warnings + ", errors " + stats.errors + ".");
+    log.info("Temporary views were removed; the model has no new content to save.");
+}
+
+main();

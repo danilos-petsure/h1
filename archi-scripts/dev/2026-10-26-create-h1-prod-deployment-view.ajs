@@ -1,0 +1,450 @@
+/*
+ * 2026-10-26-create-h1-prod-deployment-view.ajs
+ * ===========================================================================
+ * Purpose        : Create the view "H1 – PROD deployment by insurer" in the H1
+ *                  model: one visual group per component × insurer (for example
+ *                  "COS Australia + Trupanion", "DAPI New Zealand", "VetHub Global"),
+ *                  each drawn as a deployment diagram:
+ *                    Technology service (Azure service / on-premises)
+ *                      └ Node or System Software (one per deployed instance)
+ *                          └ Application Component
+ *                              └ Artifact(s) (deployment artifact, property source_code)
+ *                  Technology services are stacked one under the other inside the
+ *                  group; databases follow the same pattern
+ *                  (Azure SQL Database ▸ SQL Server ▸ COS_PROD).
+ * Authored       : 2026-10-26
+ * Kind           : MODEL-CHANGING. Creates folders, technology elements, artifacts,
+ *                  relationships and one view; adds properties that are missing.
+ *                  Never deletes, renames or moves existing concepts or views.
+ * Prerequisites  : - Archi with jArchi; the H1 model (archi/h1.archimate) open and
+ *                    selected in the Models tree.
+ *                  - Model file committed on a FEATURE BRANCH (not main) with a clean
+ *                    working tree, so the change can be reviewed and rolled back.
+ *                  - ../common/h1-prod-deployment-data.js
+ * Expected scope : New concepts go into "H1 PROD Deployment" sub-folders of
+ *                  "Technology & Physical" and "Relations"; the view goes into "Views".
+ *                  Existing application components, technology services and
+ *                  artifacts are reused by Archi ID (see data file).
+ * Idempotency    : Elements are matched by Archi ID (existing) or by type + name
+ *                  (new); relationships by source + target + type. Re-running reuses
+ *                  everything. The view is created only if no view with property
+ *                  h1_view_id = H1-PROD-DEPLOYMENT-BY-INSURER exists (the script stops
+ *                  otherwise; it never deletes a view).
+ * Layout         : Nested deployment layout; nested relationships are NOT drawn as
+ *                  connections (ArchiMate nesting convention). Database ▸ component
+ *                  "Serves" connections are drawn.
+ * Safety         : DRY_RUN = true by default (prints the plan, changes nothing).
+ *                  With DRY_RUN = false a confirmation dialog is shown first.
+ * Rollback       : Edit ▸ Undo, or close the model without saving; after saving,
+ *                  revert archi/h1.archimate with git (git checkout -- archi/h1.archimate
+ *                  or reset the feature branch) and delete the branch.
+ * Australian English is used throughout.
+ */
+
+load(__DIR__ + "../common/h1-prod-deployment-data.js");
+
+// ---------------------------------------------------------------- settings
+const DRY_RUN = true;                    // set to false to apply the changes
+const EXPECTED_MODEL_NAME = "H1";        // guard against running on the wrong model ("" to disable)
+const DRAW_NESTED_CONNECTIONS = false;   // true = also draw lines for nested relationships
+const DRAW_DB_CONNECTIONS = true;        // draw database ▸ application component "Serves" lines
+
+const D = H1_PROD_DEPLOYMENT;
+
+// Relationship names when none is given: relationship type in the third person.
+const VERB = {
+    "realization-relationship": "Realises",
+    "serving-relationship": "Serves",
+    "assignment-relationship": "Assigns",
+    "composition-relationship": "Composes",
+    "association-relationship": "Associates with"
+};
+
+// Layout (pixels). Sizes follow the agreed sketch: service ▸ instances side by side ▸
+// component ▸ artifact(s); database service underneath.
+const L = {
+    artW: 250, artH: 60, artGap: 10,
+    compTop: 30, compSide: 12, compBottom: 12, compGap: 12,
+    itemTop: 34, itemSide: 16, itemBottom: 16, itemMinW: 290,
+    blockTop: 42, blockSide: 20, blockBottom: 20, itemGap: 24,
+    groupTop: 34, groupSide: 18, groupBottom: 18, blockGap: 24,
+    groupGapX: 60, sectionGapY: 80, labelW: 170, x0: 20, y0: 20, maxRowWidth: 4600
+};
+const SECTION_FILL = {
+    "Global": "#eef3fb", "Australia": "#fff6e5", "Trupanion": "#f2eefb",
+    "New Zealand": "#eaf6ef", "Vet Partners": "#fdeeee"
+};
+
+const TOP_FOLDER_NAMES = {
+    technology: ["Technology & Physical", "Technology and Physical", "Technology"],
+    relations: ["Relations"],
+    views: ["Views", "Diagrams"]
+};
+
+const stats = { created: 0, reused: 0, updated: 0, skipped: 0, warnings: 0, errors: 0 };
+const log = {
+    info: (m) => console.log(m),
+    warn: (m) => { stats.warnings++; console.log("WARNING: " + m); },
+    error: (m) => { stats.errors++; console.error("ERROR: " + m); }
+};
+
+// ---------------------------------------------------------------- utilities
+function norm(s) { return (s === null || s === undefined ? "" : String(s)).trim().replace(/\s+/g, " ").toLowerCase(); }
+function toArray(coll) {
+    const out = [];
+    if (!coll) { return out; }
+    if (typeof coll.each === "function") { coll.each((x) => out.push(x)); return out; }
+    for (let i = 0; i < coll.length; i++) { out.push(coll[i]); }
+    return out;
+}
+function findTopFolder(kind) {
+    const names = TOP_FOLDER_NAMES[kind].map(norm);
+    const hits = toArray($(model).children("folder")).filter((f) => names.indexOf(norm(f.name)) >= 0);
+    return hits.length ? hits[0] : null;
+}
+function findChildFolder(parent, name) {
+    if (!parent) { return null; }
+    const hits = toArray($(parent).children("folder")).filter((f) => norm(f.name) === norm(name));
+    return hits.length ? hits[0] : null;
+}
+function isAllowed(relType, srcType, tgtType) {
+    try {
+        if ($.model && typeof $.model.isAllowedRelationship === "function") {
+            return !!$.model.isAllowedRelationship(relType, srcType, tgtType);
+        }
+    } catch (e) { /* not available */ }
+    return null;
+}
+function setIfMissing(concept, props) {
+    let n = 0;
+    Object.keys(props || {}).forEach((k) => {
+        if (props[k] === "" || props[k] === null || props[k] === undefined) { return; }
+        if (concept.prop(k) === null || concept.prop(k) === undefined || concept.prop(k) === "") {
+            concept.prop(k, String(props[k]));
+            n++;
+        }
+    });
+    return n;
+}
+
+// ---------------------------------------------------------------- layout (pure, no model access)
+function typeOfKey(key) {
+    if (D.existing[key]) {
+        if (key.indexOf("AC_") === 0) { return "application-component"; }
+        if (key.indexOf("TS_") === 0) { return "technology-service"; }
+        if (key.indexOf("ART_") === 0) { return "artifact"; }
+    }
+    return D.elements[key] ? D.elements[key].type : null;
+}
+
+function measure() {
+    const comp = (c) => ({ w: L.artW + 2 * L.compSide, h: L.compTop + c.artifacts.length * L.artH + (c.artifacts.length - 1) * L.artGap + L.compBottom });
+    const item = (it) => {
+        const kids = (it.components || []).map(comp).concat((it.artifacts || []).map(() => ({ w: L.artW, h: L.artH })));
+        const innerW = kids.reduce((m, k) => Math.max(m, k.w), 0);
+        const innerH = kids.reduce((s, k) => s + k.h, 0) + Math.max(0, kids.length - 1) * L.compGap;
+        it._w = Math.max(L.itemMinW, innerW + 2 * L.itemSide);
+        it._h = L.itemTop + innerH + L.itemBottom;
+        it._kids = kids;
+    };
+    D.sections.forEach((sec) => sec.groups.forEach((g) => {
+        g.blocks.forEach((b) => {
+            b.items.forEach(item);
+            b._w = b.items.reduce((s, it) => s + it._w, 0) + (b.items.length - 1) * L.itemGap + 2 * L.blockSide;
+            b._h = L.blockTop + b.items.reduce((m, it) => Math.max(m, it._h), 0) + L.blockBottom;
+        });
+        const inner = g.blocks.reduce((m, b) => Math.max(m, b._w), 0);
+        g.blocks.forEach((b) => { b._w = inner; });            // same width for all services in a group
+        g._w = inner + 2 * L.groupSide;
+        g._h = L.groupTop + g.blocks.reduce((s, b) => s + b._h, 0) + (g.blocks.length - 1) * L.blockGap + L.groupBottom;
+    }));
+
+    // place groups: one or more rows per section, section label on the left
+    let y = L.y0;
+    D.sections.forEach((sec) => {
+        sec._x = L.x0; sec._y = y;
+        let x = L.x0 + L.labelW, rowH = 0, rowY = y;
+        sec.groups.forEach((g) => {
+            if (x > L.x0 + L.labelW && x + g._w > L.maxRowWidth) {
+                rowY += rowH + L.groupGapX; x = L.x0 + L.labelW; rowH = 0;
+            }
+            g._x = x; g._y = rowY;
+            x += g._w + L.groupGapX;
+            rowH = Math.max(rowH, g._h);
+        });
+        sec._h = rowY + rowH - y;
+        y = rowY + rowH + L.sectionGapY;
+    });
+}
+
+// ---------------------------------------------------------------- planning (read-only)
+function buildPlan() {
+    const plan = { blockers: [], warnings: [], concepts: {}, toCreate: [], rels: [], relKeys: {}, view: null, folders: {} };
+
+    let modelName = null;
+    try { modelName = model.name; } catch (e) { modelName = null; }
+    if (!modelName) { plan.blockers.push("No model is selected. Select the H1 model in the Models tree and run again."); return plan; }
+    if (EXPECTED_MODEL_NAME && modelName !== EXPECTED_MODEL_NAME) {
+        plan.blockers.push("Selected model is '" + modelName + "' but EXPECTED_MODEL_NAME is '" + EXPECTED_MODEL_NAME + "'.");
+        return plan;
+    }
+    plan.modelName = modelName;
+
+    ["technology", "relations", "views"].forEach((k) => {
+        const top = findTopFolder(k);
+        if (!top) { plan.blockers.push("Top-level folder for '" + k + "' not found."); }
+        plan.folders[k] = top;
+    });
+    if (plan.blockers.length) { return plan; }
+    plan.folders.techSub = findChildFolder(plan.folders.technology, D.folderName);
+    plan.folders.relSub = findChildFolder(plan.folders.relations, D.folderName);
+
+    // existing concepts by Archi ID
+    Object.keys(D.existing).forEach((key) => {
+        const c = $("#" + D.existing[key]).first();
+        if (!c) { plan.blockers.push("Existing concept " + key + " (" + D.existing[key] + ") not found in the model."); return; }
+        const expected = typeOfKey(key);
+        if (expected && c.type !== expected) { plan.blockers.push(key + " is a " + c.type + ", expected " + expected + "."); return; }
+        plan.concepts[key] = c;
+    });
+
+    // new concepts by type + name (reuse if exactly one exists)
+    Object.keys(D.elements).forEach((key) => {
+        const spec = D.elements[key];
+        const hits = toArray($(spec.type)).filter((c) => norm(c.name) === norm(spec.name));
+        if (hits.length === 1) { plan.concepts[key] = hits[0]; }
+        else if (hits.length > 1) { plan.blockers.push("Ambiguous: " + hits.length + " " + spec.type + " concepts named '" + spec.name + "'."); }
+        else { plan.toCreate.push(key); }
+    });
+
+    // keys referenced by the view must all be defined
+    D.sections.forEach((sec) => sec.groups.forEach((g) => g.blocks.forEach((b) => {
+        [b.service].concat(b.items.map((i) => i.el)).forEach((k) => { if (!typeOfKey(k)) { plan.blockers.push("Unknown key '" + k + "' in group " + g.name); } });
+        b.items.forEach((it) => {
+            (it.components || []).forEach((c) => [c.el].concat(c.artifacts).forEach((k) => { if (!typeOfKey(k)) { plan.blockers.push("Unknown key '" + k + "' in group " + g.name); } }));
+            (it.artifacts || []).forEach((k) => { if (!typeOfKey(k)) { plan.blockers.push("Unknown key '" + k + "' in group " + g.name); } });
+        });
+    })));
+    if (plan.blockers.length) { return plan; }
+
+    // relationships implied by the nesting
+    const addRel = (type, src, tgt, drawn) => {
+        const key = src + ">" + tgt + ":" + type;
+        if (plan.relKeys[key]) { return; }
+        const allowed = isAllowed(type, typeOfKey(src), typeOfKey(tgt));
+        if (allowed === false) { plan.warnings.push("Not allowed in ArchiMate, skipped: " + src + " —" + type + "→ " + tgt); return; }
+        plan.relKeys[key] = true;
+        plan.rels.push({ key: key, type: type, src: src, tgt: tgt, drawn: !!drawn });
+    };
+    D.sections.forEach((sec) => sec.groups.forEach((g) => g.blocks.forEach((b) => b.items.forEach((it) => {
+        addRel("realization-relationship", it.el, b.service);                      // instance realises the service
+        (it.components || []).forEach((c) => {
+            addRel("serving-relationship", it.el, c.el);                           // instance serves the component
+            c.artifacts.forEach((a) => {
+                addRel("assignment-relationship", it.el, a);                       // artifact deployed on the instance
+                addRel("realization-relationship", a, c.el);                       // artifact realises the component
+            });
+        });
+        (it.artifacts || []).forEach((a) => addRel("assignment-relationship", it.el, a));
+        if (g.dbServes && typeOfKey(it.el) === "system-software") {
+            addRel("serving-relationship", it.el, g.dbServes, true);              // database serves the component
+        }
+    }))));
+
+    plan.rels.forEach((r) => {
+        const s = plan.concepts[r.src], t = plan.concepts[r.tgt];
+        r.existing = null;
+        if (s && t) {
+            const hit = toArray($(s).outRels(r.type)).filter((x) => x.target && x.target.id === t.id);
+            if (hit.length) { r.existing = hit[0]; }
+        }
+    });
+
+    // view
+    const views = toArray($("view")).filter((v) => v.prop(D.viewIdProperty) === D.viewIdValue || norm(v.name) === norm(D.viewName));
+    if (views.length) {
+        plan.blockers.push("View '" + views[0].name + "' already exists. Rename or remove it in Archi, then run again (this script never deletes views).");
+    }
+    return plan;
+}
+
+function summarise(plan) {
+    const relNew = plan.rels.filter((r) => !r.existing).length;
+    let groups = 0;
+    D.sections.forEach((s) => { groups += s.groups.length; });
+    log.info("Model                 : " + plan.modelName);
+    log.info("Folders               : " + (plan.folders.techSub ? "reuse" : "create") + " Technology & Physical/" + D.folderName + ", " +
+        (plan.folders.relSub ? "reuse" : "create") + " Relations/" + D.folderName);
+    log.info("Elements              : " + Object.keys(plan.concepts).length + " reused, " + plan.toCreate.length + " to create");
+    log.info("Relationships         : " + (plan.rels.length - relNew) + " existing, " + relNew + " to create");
+    log.info("View                  : '" + D.viewName + "' with " + D.sections.length + " sections and " + groups + " groups");
+    if (plan.toCreate.length) {
+        log.info("");
+        log.info("Elements to create:");
+        plan.toCreate.forEach((k) => log.info("  + " + D.elements[k].type + "  " + D.elements[k].name));
+    }
+    log.info("");
+    log.info("Groups:");
+    D.sections.forEach((s) => s.groups.forEach((g) => {
+        const inst = [];
+        g.blocks.forEach((b) => b.items.forEach((it) => inst.push(it.el)));
+        log.info("  [" + s.name + "] " + g.name + " – " + g.blocks.length + " service(s), " + inst.length + " instance(s)");
+    }));
+}
+
+// ---------------------------------------------------------------- apply
+function ensureFolder(parent, name) {
+    let f = findChildFolder(parent, name);
+    if (f) { return f; }
+    try { f = parent.createFolder(name); stats.created++; return f; }
+    catch (e) { log.warn("Could not create folder '" + name + "' (" + e + "); using '" + parent.name + "' instead."); return parent; }
+}
+
+function createElement(spec, folder) {
+    let el;
+    try { el = model.createElement(spec.type, spec.name, folder); }
+    catch (e) { el = model.createElement(spec.type, spec.name); try { folder.add(el); } catch (e2) { /* stays in default folder */ } }
+    return el;
+}
+
+function styleContainer(obj, fill) {
+    try { obj.textPosition = TEXT_POSITION.TOP; } catch (e) { /* older jArchi */ }
+    try { obj.textAlignment = TEXT_ALIGNMENT.LEFT; } catch (e) { /* older jArchi */ }
+    if (fill) { try { obj.fillColor = fill; } catch (e) { /* ignore */ } }
+}
+
+function apply(plan) {
+    const techFolder = plan.folders.techSub || ensureFolder(plan.folders.technology, D.folderName);
+    const relFolder = plan.folders.relSub || ensureFolder(plan.folders.relations, D.folderName);
+
+    // elements
+    plan.toCreate.forEach((key) => {
+        plan.concepts[key] = createElement(D.elements[key], techFolder);
+        stats.created++;
+    });
+    stats.reused += Object.keys(plan.concepts).length - plan.toCreate.length;
+    Object.keys(D.elements).forEach((key) => { stats.updated += setIfMissing(plan.concepts[key], D.elements[key].props) ? 1 : 0; });
+    Object.keys(D.existingProps || {}).forEach((key) => { stats.updated += setIfMissing(plan.concepts[key], D.existingProps[key]) ? 1 : 0; });
+
+    // relationships
+    const relByKey = {};
+    plan.rels.forEach((r) => {
+        if (r.existing) { relByKey[r.key] = r.existing; stats.skipped++; return; }
+        try {
+            relByKey[r.key] = model.createRelationship(r.type, VERB[r.type] || r.type, plan.concepts[r.src], plan.concepts[r.tgt], relFolder);
+            stats.created++;
+        } catch (e) {
+            log.warn("Relationship not created (" + r.src + " —" + r.type + "→ " + r.tgt + "): " + e);
+        }
+    });
+
+    // view
+    const view = model.createArchimateView(D.viewName, plan.folders.views);
+    view.prop(D.viewIdProperty, D.viewIdValue);
+    view.prop("source", D.source);
+    view.documentation = "PROD deployment per component and insurer. Generated by archi-scripts/dev/2026-10-26-create-h1-prod-deployment-view.ajs. " +
+        "Groups named '… Australia + Trupanion' are shared by PetSure Australia, Trupanion and Luna; 'Global' = shared by all insurers. " +
+        "Properties 'inferred = true' and 'source_code = TBC …' mark facts still to be confirmed.";
+    stats.created++;
+
+    const objs = {};      // key → [diagram objects] (for drawn connections)
+    const remember = (key, o, groupName) => { (objs[groupName + "|" + key] = objs[groupName + "|" + key] || []).push(o); };
+
+    D.sections.forEach((sec) => {
+        const note = view.createObject("diagram-model-note", sec._x, sec._y, L.labelW - 30, 60);
+        note.text = sec.name;
+        try { note.fontSize = 16; note.fontStyle = 1; } catch (e) { /* ignore */ }
+
+        sec.groups.forEach((g) => {
+            const grp = view.createObject("diagram-model-group", g._x, g._y, g._w, g._h);
+            grp.name = g.name;
+            styleContainer(grp, SECTION_FILL[sec.name]);
+
+            let by = L.groupTop;
+            g.blocks.forEach((b) => {
+                const svc = grp.add(plan.concepts[b.service], L.groupSide, by, b._w, b._h);
+                styleContainer(svc);
+                let ix = L.blockSide;
+                b.items.forEach((it) => {
+                    const inst = svc.add(plan.concepts[it.el], ix, L.blockTop, it._w, it._h);
+                    styleContainer(inst);
+                    remember(it.el, inst, g.name);
+                    let cy = L.itemTop;
+                    (it.components || []).forEach((c) => {
+                        const cw = L.artW + 2 * L.compSide;
+                        const ch = L.compTop + c.artifacts.length * L.artH + (c.artifacts.length - 1) * L.artGap + L.compBottom;
+                        const co = inst.add(plan.concepts[c.el], L.itemSide, cy, cw, ch);   // component on top of the instance
+                        styleContainer(co);
+                        remember(c.el, co, g.name);
+                        let ay = L.compTop;
+                        c.artifacts.forEach((a) => {
+                            co.add(plan.concepts[a], L.compSide, ay, L.artW, L.artH);       // artifact on top of the component
+                            ay += L.artH + L.artGap;
+                        });
+                        cy += ch + L.compGap;
+                    });
+                    (it.artifacts || []).forEach((a) => {
+                        inst.add(plan.concepts[a], L.itemSide, cy, L.artW, L.artH);         // artifact directly on the instance
+                        cy += L.artH + L.compGap;
+                    });
+                    ix += it._w + L.itemGap;
+                });
+                by += b._h + L.blockGap;
+            });
+        });
+    });
+
+    // connections
+    D.sections.forEach((sec) => sec.groups.forEach((g) => {
+        plan.rels.forEach((r) => {
+            if (!relByKey[r.key]) { return; }
+            if (!(r.drawn ? DRAW_DB_CONNECTIONS : DRAW_NESTED_CONNECTIONS)) { return; }
+            const srcs = objs[g.name + "|" + r.src] || [], tgts = objs[g.name + "|" + r.tgt] || [];
+            if (!srcs.length || !tgts.length) { return; }
+            try { view.add(relByKey[r.key], srcs[0], tgts[0]); }
+            catch (e) { log.warn("Connection not drawn in '" + g.name + "' (" + r.key + "): " + e); }
+        });
+    }));
+    return view;
+}
+
+// ---------------------------------------------------------------- main
+function main() {
+    console.show();
+    console.clear();
+    log.info("H1 – PROD deployment by insurer — " + (DRY_RUN ? "DRY RUN (no changes)" : "APPLY"));
+    log.info("Source: " + D.source);
+    log.info("Reminder: run on a feature branch with archi/h1.archimate committed, so the change can be reverted.");
+    log.info("");
+
+    measure();
+    const plan = buildPlan();
+    if (!plan.blockers.length) { summarise(plan); }
+    plan.warnings.forEach((w) => log.warn(w));
+
+    if (plan.blockers.length) {
+        log.info("");
+        plan.blockers.forEach((b) => log.error(b));
+        log.info("");
+        log.info("Stopped before making any change. Resolve the blockers above and run again.");
+        return;
+    }
+    if (DRY_RUN) {
+        log.info("");
+        log.info("Dry run complete — nothing was changed. Set DRY_RUN = false to apply.");
+        return;
+    }
+    if (!window.confirm("Create the view '" + D.viewName + "', " + plan.toCreate.length + " elements and " +
+        plan.rels.filter((r) => !r.existing).length + " relationships in model '" + plan.modelName + "'?")) {
+        log.info("Cancelled by the user — nothing was changed.");
+        return;
+    }
+
+    const view = apply(plan);
+    log.info("");
+    log.info("Done. Created " + stats.created + ", reused " + stats.reused + ", updated (properties) " + stats.updated +
+        ", existing relationships " + stats.skipped + ", warnings " + stats.warnings + ", errors " + stats.errors + ".");
+    log.info("Open the view '" + view.name + "' and check the layout. Save the model, then commit on the feature branch.");
+}
+
+main();

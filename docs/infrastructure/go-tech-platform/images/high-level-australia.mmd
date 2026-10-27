@@ -1,0 +1,43 @@
+flowchart LR
+  VET([Vet practices<br/>Tyro / VPMS]):::ext
+  VH["<b>VetHub</b><br/>App Service · APIM · VM services<br/><i>DB: VetHub_PROD</i>"]:::shared
+  CA["<b>Claims Automation</b><br/>Logic App Standard<br/><i>DB: PSPRODClaimsAutoDB</i>"]:::shared
+  COS["<b>COS AU</b><br/>PS-PRD-AZS-P3-1 / 2 / 3<br/><i>DB: COS_PROD</i>"]:::vm
+  CLAPI["<b>Claims API · CLAPI</b><br/>PS-PRD-AZS-P3-1 / 2"]:::vm
+  DAPIRO["<b>DAPI read-only</b><br/>PS-PRD-AZS-CSP1"]:::vm
+  DCL["<b>Dynamic CLAPI</b><br/>App Service"]:::paas
+  STP["<b>STP / Clawdia</b><br/>Logic App · Functions · RO DataService<br/><i>DB: PSPRODClaimsAutoDB</i>"]:::paas
+  ML["<b>ClawGP model</b><br/>Azure ML endpoint"]:::paas
+  DAPI["<b>DAPI read/write</b><br/>PS-BCS-PRD-API1"]:::onprem
+  UPMAPI["<b>UPM Dynamics API</b><br/>PETSURE_UPM_API_BASIC"]:::onprem
+  UPM["<b>UPM+ AU</b> · Business Central<br/>PS-PRD-BCS-APP1…6<br/><i>DB: PETSURE_PRD_UPM</i>"]:::onprem
+
+  VET -->|"Cloudflare / APIM"| VH
+  VH -->|"claims picked up by COS"| COS
+  COS <-->|"Event Grid / callback"| CA
+  COS --> CLAPI
+  CLAPI --> DAPI
+  DAPI -->|"reads / writes UPM DB"| UPM
+  COS -->|"lodge"| DCL
+  UPM -->|"CLAW-INIT"| DCL
+  DCL <--> STP
+  STP --> ML
+  DCL --> UPMAPI
+  UPMAPI --> UPM
+  DAPIRO -.->|"reads RO replica"| UPM
+
+  subgraph LEG[Legend]
+    direction LR
+    L1[Shared by all insurers]:::shared
+    L2[Azure VM · IaaS]:::vm
+    L3[Azure PaaS]:::paas
+    L4[On-premises]:::onprem
+    L5[External SaaS]:::ext
+    L1 ~~~ L2 ~~~ L3 ~~~ L4 ~~~ L5
+  end
+
+  classDef shared fill:#e8eefc,stroke:#4a63a8,color:#111
+  classDef paas fill:#e1f3de,stroke:#3f8a38,color:#111
+  classDef vm fill:#fff1d1,stroke:#b07d16,color:#111
+  classDef onprem fill:#f2e2f6,stroke:#7f3f96,color:#111
+  classDef ext fill:#f1f1f1,stroke:#777,color:#111,stroke-dasharray:4 3

@@ -1,0 +1,305 @@
+/*
+ * 2026-10-26-create-h1-servers-by-service-view.ajs
+ * ===========================================================================
+ * Purpose        : Create the view "H1 – PROD servers by managed service": every
+ *                  server (node, device or system software) appears ONCE, inside
+ *                  the managed service that hosts it, showing ALL the application
+ *                  components deployed on it and, inside each component, the
+ *                  artifacts that are deployed on that server.
+ *                    Provider group (Azure / On-premises)
+ *                      └ Technology service (Azure Virtual Machines, Logic Apps Standard, …)
+ *                          └ Node / System Software (one per server or instance)
+ *                              └ Application Component
+ *                                  └ Artifact(s)
+ * Authored       : 2026-10-26
+ * Kind           : MODEL-CHANGING (creates one view and its diagram objects only).
+ *                  Creates no elements or relationships; never deletes, renames or
+ *                  moves anything.
+ * Source of truth: The model itself, not a data file. The script reads:
+ *                    instance  —Realises→  technology service   (instance belongs to the service)
+ *                    instance  —Serves→    application component (component runs on the instance)
+ *                    instance  —Assigns→   artifact              (artifact deployed on the instance)
+ *                    artifact  —Realises→  application component (artifact belongs to the component)
+ *                  These relationships were created by
+ *                  dev/2026-10-26-create-h1-prod-deployment-view.ajs; run that first.
+ * Display rules  : - An artifact sits inside every component (served by that server)
+ *                    that it realises; artifacts realising none of them sit directly
+ *                    on the server (for example databases and file shares).
+ *                  - On a node, a served component without any artifact is still
+ *                    shown (empty) and logged as a warning.
+ *                  - On system software (databases), components without artifacts
+ *                    are NOT drawn: "SQL Server serves COS" is a usage, not a
+ *                    deployment.
+ *                  - Servers are grouped by the provider property of their service
+ *                    ("Azure" / "On-premises"; anything else under "Other").
+ * Prerequisites  : - Archi with jArchi; the H1 model open and selected.
+ *                  - Model committed on a FEATURE BRANCH (not main) with a clean
+ *                    working tree, so the new view can be reverted.
+ *                  - ../common/h1-view-helpers.js
+ * Idempotency    : The view is created only if no view with property
+ *                  h1_view_id = H1-PROD-SERVERS-BY-SERVICE (or the same name)
+ *                  exists; otherwise the script stops. It never deletes a view —
+ *                  to regenerate, delete or rename the old view in Archi first.
+ * Safety         : DRY_RUN = true by default: prints the full server ▸ component ▸
+ *                  artifact inventory and changes nothing. With DRY_RUN = false a
+ *                  confirmation dialog is shown first.
+ * Rollback       : Edit ▸ Undo, or delete the created view; after saving, revert
+ *                  archi/h1.archimate with git on the feature branch.
+ * Australian English is used throughout.
+ */
+
+load(__DIR__ + "../common/h1-view-helpers.js");
+
+// ---------------------------------------------------------------- settings
+const DRY_RUN = true;                       // set to false to create the view
+const EXPECTED_MODEL_NAME = "H1";           // guard against the wrong model ("" to disable)
+const VIEW_NAME = "H1 – PROD servers by managed service";
+const VIEW_ID_KEY = "h1_view_id";
+const VIEW_ID_VALUE = "H1-PROD-SERVERS-BY-SERVICE";
+const INSTANCE_TYPES = ["node", "device", "system-software"];
+
+// Order of providers and services in the view; services not listed follow alphabetically.
+const PROVIDER_ORDER = ["Azure", "On-premises", "Other"];
+const SERVICE_ORDER = [
+    "API Management", "App Service (code)", "Azure Virtual Machines", "Logic Apps Standard",
+    "Azure Functions", "Azure Machine Learning (managed endpoints)", "Azure SQL Database",
+    "On-premises data centre (Equinix + AirTrunk)", "On-premises SQL Server"
+];
+const PROVIDER_FILL = { "Azure": "#eef3fb", "On-premises": "#fff6e5", "Other": "#f4f4f4" };
+
+// Layout (pixels) — same proportions as the deployment-by-insurer view.
+const L = {
+    artW: 250, artH: 60, artGap: 10,
+    compTop: 30, compSide: 12, compBottom: 12, compGap: 12,
+    itemTop: 34, itemSide: 16, itemBottom: 16, itemMinW: 290,
+    blockTop: 42, blockSide: 20, blockBottom: 20, itemGapX: 24, itemGapY: 24,
+    groupTop: 34, groupSide: 18, groupBottom: 18, blockGap: 24,
+    groupGapY: 60, x0: 20, y0: 20,
+    maxBlockInnerW: 2400            // servers wrap onto a new row inside a service beyond this width
+};
+
+const stats = { objects: 0, warnings: 0, errors: 0 };
+const log = {
+    info: (m) => console.log(m),
+    warn: (m) => { stats.warnings++; console.log("WARNING: " + m); },
+    error: (m) => { stats.errors++; console.error("ERROR: " + m); }
+};
+const A = H1V.toArray;
+
+// ---------------------------------------------------------------- discovery (read-only)
+function discover() {
+    const res = { blockers: [], providers: [] };
+    let modelName = null;
+    try { modelName = model.name; } catch (e) { modelName = null; }
+    if (!modelName) { res.blockers.push("No model is selected. Select the H1 model in the Models tree and run again."); return res; }
+    if (EXPECTED_MODEL_NAME && modelName !== EXPECTED_MODEL_NAME) {
+        res.blockers.push("Selected model is '" + modelName + "' but EXPECTED_MODEL_NAME is '" + EXPECTED_MODEL_NAME + "'.");
+        return res;
+    }
+    res.modelName = modelName;
+    res.viewsFolder = H1V.findTopFolder("views");
+    if (!res.viewsFolder) { res.blockers.push("Top-level 'Views' folder not found."); }
+    const existing = H1V.findViews(VIEW_ID_KEY, VIEW_ID_VALUE, VIEW_NAME);
+    if (existing.length) {
+        res.blockers.push("View '" + existing[0].name + "' already exists. Rename or delete it in Archi, then run again (this script never deletes views).");
+    }
+
+    const byProvider = {};
+    const seenInstance = {};
+    A($("technology-service")).forEach((svc) => {
+        const instances = A($(svc).inRels("realization-relationship"))
+            .map((r) => r.source)
+            .filter((s) => s && INSTANCE_TYPES.indexOf(s.type) >= 0);
+        const unique = [];
+        instances.forEach((i) => { if (!unique.some((u) => u.id === i.id)) { unique.push(i); } });
+        if (!unique.length) { return; }
+
+        const block = { service: svc, items: [] };
+        unique.sort(H1V.byName).forEach((inst) => {
+            if (seenInstance[inst.id]) {
+                log.warn("'" + inst.name + "' realises both '" + seenInstance[inst.id] + "' and '" + svc.name + "'; it is shown under both.");
+            }
+            seenInstance[inst.id] = svc.name;
+
+            const served = A($(inst).outRels("serving-relationship")).map((r) => r.target)
+                .filter((t) => t && t.type === "application-component");
+            const deployed = A($(inst).outRels("assignment-relationship")).map((r) => r.target)
+                .filter((t) => t && t.type === "artifact");
+
+            const comps = {};
+            served.forEach((c) => { comps[c.id] = { el: c, artifacts: [] }; });
+            const loose = [];
+            deployed.forEach((a) => {
+                const realised = A($(a).outRels("realization-relationship")).map((r) => r.target)
+                    .filter((t) => t && comps[t.id]);
+                if (realised.length) { realised.forEach((c) => { if (!comps[c.id].artifacts.some((x) => x.id === a.id)) { comps[c.id].artifacts.push(a); } }); }
+                else if (!loose.some((x) => x.id === a.id)) { loose.push(a); }
+            });
+
+            const components = Object.keys(comps).map((k) => comps[k]).filter((c) => {
+                if (c.artifacts.length) { return true; }
+                if (inst.type === "system-software") { return false; }          // usage, not deployment
+                log.warn("'" + c.el.name + "' is served by '" + inst.name + "' but no artifact on that server realises it; shown empty.");
+                return true;
+            });
+            components.sort((x, y) => H1V.byName(x.el, y.el));
+            components.forEach((c) => c.artifacts.sort(H1V.byName));
+            loose.sort(H1V.byName);
+            block.items.push({ el: inst, components: components, artifacts: loose });
+        });
+
+        let provider = svc.prop("provider") || "Other";
+        if (PROVIDER_ORDER.indexOf(provider) < 0) { provider = "Other"; }
+        (byProvider[provider] = byProvider[provider] || []).push(block);
+    });
+
+    const rank = (s) => { const i = SERVICE_ORDER.indexOf(s.name); return i < 0 ? 999 : i; };
+    PROVIDER_ORDER.forEach((p) => {
+        if (!byProvider[p]) { return; }
+        byProvider[p].sort((a, b) => (rank(a.service) - rank(b.service)) || H1V.byName(a.service, b.service));
+        res.providers.push({ name: p, blocks: byProvider[p] });
+    });
+    if (!res.providers.length) {
+        res.blockers.push("No server realises any technology service. Run dev/2026-10-26-create-h1-prod-deployment-view.ajs first.");
+    }
+    return res;
+}
+
+function report(res) {
+    log.info("Model: " + res.modelName);
+    res.providers.forEach((p) => {
+        log.info("");
+        log.info("== " + p.name);
+        p.blocks.forEach((b) => {
+            log.info("  " + b.service.name + "  (" + b.items.length + " server" + (b.items.length === 1 ? "" : "s") + ")");
+            b.items.forEach((it) => {
+                log.info("    ▸ " + it.el.name + "  [" + it.el.type + "]");
+                it.components.forEach((c) => {
+                    log.info("        " + c.el.name);
+                    c.artifacts.forEach((a) => log.info("            - " + a.name));
+                });
+                it.artifacts.forEach((a) => log.info("        (on server) " + a.name));
+            });
+        });
+    });
+}
+
+// ---------------------------------------------------------------- layout (pure)
+function measure(res) {
+    res.providers.forEach((p) => {
+        p.blocks.forEach((b) => {
+            b.items.forEach((it) => {
+                const kids = it.components.map((c) => ({
+                    w: L.artW + 2 * L.compSide,
+                    h: L.compTop + c.artifacts.length * L.artH + Math.max(0, c.artifacts.length - 1) * L.artGap + L.compBottom
+                })).concat(it.artifacts.map(() => ({ w: L.artW, h: L.artH })));
+                it._kids = kids;
+                it._w = Math.max(L.itemMinW, kids.reduce((m, k) => Math.max(m, k.w), 0) + 2 * L.itemSide);
+                it._h = L.itemTop + kids.reduce((s, k) => s + k.h, 0) + Math.max(0, kids.length - 1) * L.compGap + L.itemBottom;
+            });
+            // place servers in rows, wrapping at maxBlockInnerW
+            let x = 0, y = 0, rowH = 0, innerW = 0;
+            b.items.forEach((it) => {
+                if (x > 0 && x + it._w > L.maxBlockInnerW) { x = 0; y += rowH + L.itemGapY; rowH = 0; }
+                it._x = L.blockSide + x; it._y = L.blockTop + y;
+                x += it._w + L.itemGapX;
+                innerW = Math.max(innerW, x - L.itemGapX);
+                rowH = Math.max(rowH, it._h);
+            });
+            b._w = innerW + 2 * L.blockSide;
+            b._h = L.blockTop + y + rowH + L.blockBottom;
+        });
+        const inner = p.blocks.reduce((m, b) => Math.max(m, b._w), 0);
+        p.blocks.forEach((b) => { b._w = inner; });
+        p._w = inner + 2 * L.groupSide;
+        p._h = L.groupTop + p.blocks.reduce((s, b) => s + b._h, 0) + (p.blocks.length - 1) * L.blockGap + L.groupBottom;
+    });
+    let y = L.y0;
+    res.providers.forEach((p) => { p._x = L.x0; p._y = y; y += p._h + L.groupGapY; });
+}
+
+// ---------------------------------------------------------------- apply
+function apply(res) {
+    const view = model.createArchimateView(VIEW_NAME, res.viewsFolder);
+    view.prop(VIEW_ID_KEY, VIEW_ID_VALUE);
+    view.documentation = "Every server appears once, inside the managed service that hosts it, with all application components and " +
+        "artifacts deployed on it. Derived from the model relationships (instance Realises service, Serves component, Assigns artifact; " +
+        "artifact Realises component). Generated by archi-scripts/dev/2026-10-26-create-h1-servers-by-service-view.ajs.";
+
+    res.providers.forEach((p) => {
+        const grp = view.createObject("diagram-model-group", p._x, p._y, p._w, p._h);
+        grp.name = p.name;
+        H1V.styleContainer(grp, PROVIDER_FILL[p.name]);
+        stats.objects++;
+
+        let by = L.groupTop;
+        p.blocks.forEach((b) => {
+            const svc = grp.add(b.service, L.groupSide, by, b._w, b._h);
+            H1V.styleContainer(svc);
+            stats.objects++;
+            b.items.forEach((it) => {
+                const inst = svc.add(it.el, it._x, it._y, it._w, it._h);
+                H1V.styleContainer(inst);
+                stats.objects++;
+                let cy = L.itemTop;
+                it.components.forEach((c, i) => {
+                    const k = it._kids[i];
+                    const co = inst.add(c.el, L.itemSide, cy, k.w, k.h);          // component on top of the server
+                    H1V.styleContainer(co);
+                    stats.objects++;
+                    let ay = L.compTop;
+                    c.artifacts.forEach((a) => {
+                        co.add(a, L.compSide, ay, L.artW, L.artH);                 // artifact on top of the component
+                        stats.objects++;
+                        ay += L.artH + L.artGap;
+                    });
+                    cy += k.h + L.compGap;
+                });
+                it.artifacts.forEach((a) => {
+                    inst.add(a, L.itemSide, cy, L.artW, L.artH);                  // artifact directly on the server
+                    stats.objects++;
+                    cy += L.artH + L.compGap;
+                });
+            });
+            by += b._h + L.blockGap;
+        });
+    });
+    return view;
+}
+
+// ---------------------------------------------------------------- main
+function main() {
+    console.show();
+    console.clear();
+    log.info(VIEW_NAME + " — " + (DRY_RUN ? "DRY RUN (no changes)" : "APPLY"));
+    log.info("Reminder: run on a feature branch with archi/h1.archimate committed, so the change can be reverted.");
+    log.info("");
+
+    const res = discover();
+    if (res.providers.length) { report(res); }
+    if (res.blockers.length) {
+        log.info("");
+        res.blockers.forEach((b) => log.error(b));
+        log.info("");
+        log.info("Stopped before making any change.");
+        return;
+    }
+    measure(res);
+    if (DRY_RUN) {
+        log.info("");
+        log.info("Dry run complete — nothing was changed. Set DRY_RUN = false to create the view.");
+        return;
+    }
+    let servers = 0;
+    res.providers.forEach((p) => p.blocks.forEach((b) => { servers += b.items.length; }));
+    if (!window.confirm("Create the view '" + VIEW_NAME + "' with " + servers + " servers in model '" + res.modelName + "'?")) {
+        log.info("Cancelled by the user — nothing was changed.");
+        return;
+    }
+    const view = apply(res);
+    log.info("");
+    log.info("Done. View '" + view.name + "' created with " + stats.objects + " diagram objects; warnings " + stats.warnings +
+        ", errors " + stats.errors + ". Open it and check the layout, then save and commit on the feature branch.");
+}
+
+main();

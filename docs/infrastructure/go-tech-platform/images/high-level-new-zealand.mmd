@@ -1,0 +1,33 @@
+flowchart LR
+  VET([Vet practices<br/>Tyro / VPMS]):::ext
+  VH["<b>VetHub</b><br/>App Service · APIM · VM services<br/><i>DB: VetHub_PROD</i>"]:::shared
+  CA["<b>Claims Automation</b><br/>Logic App Standard<br/><i>DB: PSPRODClaimsAutoDB</i>"]:::shared
+  COS["<b>COS NZ</b><br/>NZ-PRD-AZ-P3WEB / P3APP<br/><i>DB: COS_PROD_NZ (name inferred)</i>"]:::vm
+  CLAPI["<b>Claims API · CLAPI</b><br/>NZ-PRD-AZ-P3WEB"]:::vm
+  DAPI["<b>NZ DAPI</b><br/>NZ-PRD-INT-API1"]:::vm
+  UPMAPI["<b>UPM Dynamics API</b><br/>NZ BC API instance · name TBC"]:::vm
+  UPM["<b>UPM+ NZ</b> · Business Central<br/>nz-prd-bcs-app3 / 4<br/><i>DB: PETSURE_PRD_UPM_NZ</i>"]:::vm
+
+  VET -->|"Cloudflare / APIM"| VH
+  VH -->|"claims picked up by COS"| COS
+  COS <-->|"Event Grid / callback"| CA
+  COS --> CLAPI
+  CLAPI -->|"nz-digitalapi.petsure.com.au"| DAPI
+  DAPI -->|"reads / writes UPM DB"| UPM
+  UPMAPI --- UPM
+
+  subgraph LEG[Legend]
+    direction LR
+    L1[Shared by all insurers]:::shared
+    L2[Azure VM · IaaS]:::vm
+    L3[Azure PaaS]:::paas
+    L4[On-premises]:::onprem
+    L5[External SaaS]:::ext
+    L1 ~~~ L2 ~~~ L3 ~~~ L4 ~~~ L5
+  end
+
+  classDef shared fill:#e8eefc,stroke:#4a63a8,color:#111
+  classDef paas fill:#e1f3de,stroke:#3f8a38,color:#111
+  classDef vm fill:#fff1d1,stroke:#b07d16,color:#111
+  classDef onprem fill:#f2e2f6,stroke:#7f3f96,color:#111
+  classDef ext fill:#f1f1f1,stroke:#777,color:#111,stroke-dasharray:4 3
