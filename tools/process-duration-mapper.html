@@ -1,0 +1,693 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Process Duration Mapper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one working column — swimlane map on top, then the duration editor beside its records, then per-point notes, then the markdown output. */
+:root{
+  --bg:#f3f6f6; --surface:#ffffff; --surface-2:#eaf0ef; --ink:#132322; --muted:#5a6b6a; --line:#d3dedd;
+  --accent:#1f6f6b; --accent-ink:#ffffff; --start:#0f766e; --end:#c2410c; --danger:#b42318;
+  --d-row-a:#ffffff; --d-row-b:#f2f6f6; --d-grid:#e1e9e8; --d-edge:#8a9a99; --d-hl:#1f6f6b; --d-text:#1a2a29; --d-muted:#6b7b7a;
+  --font-sans:"IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono:"IBM Plex Mono", Consolas, "Courier New", monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1716; --surface:#152120; --surface-2:#1b2a29; --ink:#e2ecea; --muted:#94a6a4; --line:#2a3b3a;
+  --accent:#5cc2b9; --accent-ink:#06201e; --start:#5cc2b9; --end:#f59e5b; --danger:#f97066;
+  --d-row-a:#152120; --d-row-b:#192726; --d-grid:#243433; --d-edge:#6f8483; --d-hl:#5cc2b9; --d-text:#dce7e6; --d-muted:#8ea1a0;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1716; --surface:#152120; --surface-2:#1b2a29; --ink:#e2ecea; --muted:#94a6a4; --line:#2a3b3a;
+  --accent:#5cc2b9; --accent-ink:#06201e; --start:#5cc2b9; --end:#f59e5b; --danger:#f97066;
+  --d-row-a:#152120; --d-row-b:#192726; --d-grid:#243433; --d-edge:#6f8483; --d-hl:#5cc2b9; --d-text:#dce7e6; --d-muted:#8ea1a0;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5}
+.wrap{max-width:1440px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.25}
+h1{font-size:22px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:16px;font-weight:600}
+h3{font-size:14px;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted)}
+.mono{font-family:var(--font-mono);font-size:12px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+.top .meta{display:flex;flex-direction:column;gap:4px;min-width:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel-head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+button,.btn,select,input,textarea{font:inherit;color:inherit}
+button,.btn{cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 12px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+button:hover,.btn:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.primary:hover{filter:brightness(1.08)}
+button.ghost{background:transparent}
+button.danger{color:var(--danger)}
+button:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.field{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+input[type=text],select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;font-size:13.5px;font-weight:400;color:var(--ink);width:100%;min-width:0}
+textarea{resize:vertical;min-height:64px;line-height:1.45}
+select{cursor:pointer}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.diagram-scroll{overflow:auto;border:1px solid var(--line);border-radius:6px;background:var(--d-row-a);max-height:72vh}
+.diagram-scroll svg{display:block}
+.pt{cursor:pointer}
+.pt:focus{outline:none}
+.pt:focus-visible .hit{stroke:var(--accent);stroke-width:2;stroke-dasharray:3 2}
+.pt:hover .dot{filter:brightness(1.12)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);align-items:center}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:5px;border:2px solid transparent}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;border:1.5px solid currentColor;max-width:100%}
+.chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;color:var(--ink)}
+.chip.start{color:var(--start)} .chip.end{color:var(--end)}
+.chip.ex{color:var(--muted);border-width:1px;padding:0 8px;font-size:11px}
+.editor-grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.editor-grid{grid-template-columns:minmax(0,1fr)}}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:end}
+.pair .swap{padding:6px 8px;margin-bottom:1px}
+.note{font-size:12.5px;padding:8px 10px;border-radius:6px;background:var(--surface-2);color:var(--muted)}
+.note.warn{color:var(--end)}
+.preview{overflow:auto;border:1px solid var(--line);border-radius:6px;background:#ffffff;max-height:340px}
+.preview svg{display:block}
+.records{display:flex;flex-direction:column;gap:12px}
+.card{border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--surface);min-width:0}
+.card.editing{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.card-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.card-head .t{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.card .num{font-family:var(--font-mono);color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.card .desc{white-space:pre-wrap;font-size:13px}
+.card .ends{display:flex;flex-wrap:wrap;gap:6px}
+.card .actions{display:flex;gap:6px}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r)}
+.comp-notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:12px}
+.comp{border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.comp-title{display:flex;gap:8px;align-items:center}
+.swatch{width:12px;height:12px;border-radius:3px;flex:none}
+.pnote{display:flex;flex-direction:column;gap:4px;min-width:0}
+.pnote .lbl{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;font-size:13px;font-weight:600}
+.pnote .lbl .mono{font-weight:400;color:var(--muted);overflow-wrap:anywhere}
+.pnote textarea{min-height:44px;font-size:13px}
+.pnote details{font-size:12px;color:var(--muted)}
+.pnote summary{cursor:pointer}
+.gen{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.out textarea{font-family:var(--font-mono);font-size:12px;min-height:360px;white-space:pre;overflow:auto}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom, 0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+.err{color:var(--danger);font-size:12.5px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script type="application/json" id="diagram-data">{"version":{"major":2,"minor":1,"patch":2},"title":"Medical assessment- as is","components":[{"id":"c_mu68sw8p_1c","title":"VPMS / Tyro SDK","description":"external vet platform \u00b7 Tyro API gateway","color":"#1055e0","external":true,"laneRoles":["services","functions","events","data"]},{"id":"c_mu68sw8p_1e","title":"VetHub","description":"claim intake & enrichment","color":"#5bb04a","external":false,"laneRoles":["services","functions","events","data"],"techServices":[{"technologyServiceId":"ts-app-service-code","artifactTypeId":"compiled-package"}]},{"id":"c_mu68sw8p_1f","title":"COS","description":"claim orchestration service","color":"#e2a2ca","external":false,"laneRoles":["services","functions","events","data"],"techServices":[{"technologyServiceId":"ts-virtual-machines","artifactTypeId":"iis-deployment"}]},{"id":"c_muamvohy_3k","title":"Claim Automation","description":"","color":"#4a8fb0","external":false,"laneRoles":["services","functions","events","data"],"techServices":[{"technologyServiceId":"ts-logic-apps-standard","artifactTypeId":"compiled-package"}]},{"id":"c_mu68sw8p_1g","title":"Claims API (CLAPI)","description":"claims REST interface","color":"#b06d8a","external":false,"laneRoles":["services","functions","events","data"],"techServices":[{"technologyServiceId":"ts-virtual-machines","artifactTypeId":"iis-deployment"}]},{"id":"c_mu6gjkxs_6z","title":"CSP.Au.DigitalApi (DAPI)","description":"","color":"#b06d8a","external":false,"laneRoles":["services","functions","events","data"],"techServices":[{"technologyServiceId":"ts-virtual-machines","artifactTypeId":"iis-deployment"}]},{"id":"c_mu6gid7m_5i","title":"Dynamic Clapi","description":"","color":"#b06d8a","external":false,"laneRoles":["services","functions","events","data"],"techServices":[{"technologyServiceId":"ts-app-service-code","artifactTypeId":"compiled-package"}]},{"id":"c_mu6lwr14_q8","title":"STP - Clawdia","description":"","color":"#4a8fb0","external":false,"laneRoles":["services","functions","events","data"],"techServices":[{"technologyServiceId":"ts-logic-apps-standard","artifactTypeId":"compiled-package"},{"technologyServiceId":"ts-functions","artifactTypeId":"compiled-package"}]},{"id":"c_x94icthf","title":"UPM Db","description":"","color":"#754ba0","external":false,"laneRoles":["services","functions","events","data"]},{"id":"c_mu68sw8p_1h","title":"UPM Dynamics API","description":"Dynamic CLAPI","color":"#754ba0","external":false,"laneRoles":["services","functions","events","data"]},{"id":"c_mu6lzxlj_sm","title":"ML Environment","description":"","color":"#ddc527","external":false,"laneRoles":["services","functions","events","data"],"techServices":[{"technologyServiceId":"ts-machine-learning","artifactTypeId":"ml-model"}]},{"id":"c_mu68sw8p_1j","title":"UPM+","description":"policy management","color":"#754ba0","external":false,"laneRoles":["services","functions","events","data"]}],"nodes":[{"id":"nd_mu68uxr1_1p","componentId":"c_mu68sw8p_1c","laneRole":"functions","executionUnit":6,"nodeTypeId":"function","label":"Submit Medical Record Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":""},{"id":"nd_mu68v811_1q","componentId":"c_mu68sw8p_1e","laneRole":"services","executionUnit":6,"nodeTypeId":"service","label":"Get Conversation ID","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"GET","url":"/api/Claim/NewConversationId","description":"The vet software asks for a new conversation ID to start a claim. The insurer ID is optional and is rejected with 400 if invalid.","properties":[{"key":"code","value":"GetConversationID (ClaimsController.cs:55)"}]},{"id":"nd_mu68vwet_1s","componentId":"c_mu68sw8p_1e","laneRole":"functions","executionUnit":7,"nodeTypeId":"function","label":"Recognise Claim Type","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":""},{"id":"nd_mu68w65d_1u","componentId":"c_mu68sw8p_1e","laneRole":"functions","executionUnit":12,"nodeTypeId":"function","label":"Eligibility Check","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":""},{"id":"nd_mu691d7m_2f","componentId":"c_mu68sw8p_1e","laneRole":"functions","executionUnit":16,"nodeTypeId":"function","label":"Invoice Generation","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":""},{"id":"nd_mu6asivb_30","componentId":"c_mu68sw8p_1f","laneRole":"services","executionUnit":16,"nodeTypeId":"service","label":"Poll Conversations in COS","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Not a REST service. It is the COS.Poll.Services.VetHub Windows service, which runs on a timer. For each configured insurer it calls VetHub GET api/claim/newconversations?claimType={0}&NumberofClaims={1} (app setting VetHubNewConversationsAddress, VetHubService.cs:27) and starts the claim saga."},{"id":"nd_mu6av8r7_34","componentId":"c_mu68sw8p_1f","laneRole":"functions","executionUnit":15,"nodeTypeId":"function","label":"Enrich Claim with Reference Number","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6avy4h_37","componentId":"c_mu68sw8p_1f","laneRole":"functions","executionUnit":16,"nodeTypeId":"function","label":"Policy Validation","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6aw8jg_38","componentId":"c_mu68sw8p_1f","laneRole":"functions","executionUnit":17,"nodeTypeId":"function","label":"Enrich Claim with Treatment Codes","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6gmuf9_7o","componentId":"c_mu68sw8p_1g","laneRole":"services","executionUnit":24,"nodeTypeId":"service","label":"Submit Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"api/Claims","snakeStart":false,"description":"Maps the COS claim to the insurer's format and sends it to the right back-end. UPM+ AU, NZ and TPN go to DAPI api/Claims/Submit; Vet Partners goes to Boomi.","properties":[{"key":"code","value":"SubmitClaim (ClaimsController.cs:587)"}]},{"id":"nd_mu6gnjs0_80","componentId":"c_mu68sw8p_1g","laneRole":"functions","executionUnit":24,"nodeTypeId":"function","label":"DAPI Routing logic","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Routing: AuthorisationHandler.cs returns 400 if the InsuranceProviderId header is missing and 401 if the insurer is not in AllowedInsurers. AuthenticationHandler.cs and TokenService.cs get a DAPI token per insurer (api/Customer/Authentication) and cache it for 5 minutes; Vet Partners uses Basic auth instead. BackendAdapter.cs:42 picks the HTTP client named after the insurer ID; InsurersClientRegistration.cs:40-52 builds one client per insurer with its own base URL, retry, timeout and circuit breaker. Vet Partners alone is handled by VetPartnersBackendAdapter (IocConfig.cs:31, PostClaimsManager.cs:36).","properties":[{"key":"config","value":"appsettings.prod.json: AU -> https://api.petsure.com.au/, TPN -> https://tp-api.petsure.com.au; NZ and VP CLAPI instances have their own single-insurer settings files"}]},{"id":"nd_mu6goysj_86","componentId":"c_mu6gjkxs_6z","laneRole":"services","executionUnit":24,"nodeTypeId":"service","label":"Submit Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"api/Claims/Submit","snakeStart":false,"description":"Writes the claim into the UPM DS_* staging tables. Source: CLAPI config SubmitClaimEndPoint; the DAPI code itself is not verified."},{"id":"nd_mu6gpt7h_8b","componentId":"c_mu6gjkxs_6z","laneRole":"functions","executionUnit":24,"nodeTypeId":"function","label":"Prepare DS Tables for Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6gqg3q_8h","componentId":"c_x94icthf","laneRole":"data","executionUnit":24,"nodeTypeId":"data","label":"DS* Tables","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6grkf4_8q","componentId":"c_mu68sw8p_1h","laneRole":"services","executionUnit":26,"nodeTypeId":"service","label":"UPM Data Polling (10 min)","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Not verified (UPM repo not accessible). Looks like a UPM job, not an API; consider moving it to the UPM+ functions lane as DS Claims ingestion job."},{"id":"nd_mu6gst79_8y","componentId":"c_mu68sw8p_1j","laneRole":"functions","executionUnit":28,"nodeTypeId":"function","label":"Ingest Claim from Data","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6gu2vo_96","componentId":"c_mu68sw8p_1g","laneRole":"services","executionUnit":26,"nodeTypeId":"service","label":"Finish Submit Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"PUT","url":"api/Claims/FinishSubmitClaim","snakeStart":false,"description":"Marks the hand-off to the UPM DS_Claims table as complete after the last attachment.","properties":[{"key":"code","value":"FinishSubmitClaim (ClaimsController.cs:956)"}]},{"id":"nd_mu6guleu_9d","componentId":"c_mu68sw8p_1g","laneRole":"functions","executionUnit":26,"nodeTypeId":"function","label":"DAPI Routing logic","isDuplicate":true,"dupOf":"nd_mu6gnjs0_80","subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Routing: AuthorisationHandler.cs returns 400 if the InsuranceProviderId header is missing and 401 if the insurer is not in AllowedInsurers. AuthenticationHandler.cs and TokenService.cs get a DAPI token per insurer (api/Customer/Authentication) and cache it for 5 minutes; Vet Partners uses Basic auth instead. BackendAdapter.cs:42 picks the HTTP client named after the insurer ID; InsurersClientRegistration.cs:40-52 builds one client per insurer with its own base URL, retry, timeout and circuit breaker. Vet Partners alone is handled by VetPartnersBackendAdapter (IocConfig.cs:31, PostClaimsManager.cs:36).","properties":[{"key":"config","value":"appsettings.prod.json: AU -> https://api.petsure.com.au/, TPN -> https://tp-api.petsure.com.au; NZ and VP CLAPI instances have their own single-insurer settings files"}]},{"id":"nd_mu6guoti_9j","componentId":"c_mu6gjkxs_6z","laneRole":"services","executionUnit":26,"nodeTypeId":"service","label":"Finish Submit Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"PUT","url":"api/Claims/FinishSubmitClaim","snakeStart":false,"description":"CLAPI calls it with PUT (BackendAdapter.cs:1180)."},{"id":"nd_mu6gvzr4_9z","componentId":"c_mu6gjkxs_6z","laneRole":"functions","executionUnit":26,"nodeTypeId":"function","label":"Update DS Tables for Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6h0sl9_bn","componentId":"c_mu6gid7m_5i","laneRole":"services","executionUnit":27,"nodeTypeId":"service","label":"Lodge","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"PUT","url":"api/Claims/Lodge/{claimId}","snakeStart":false,"description":"Called by COS after Finish Submit Claim to make UPM create the claim from DS_Claims straight away. Requires the InsuranceProviderId header; Basic auth.","properties":[{"key":"code","value":"Lodge (ClaimsController.cs:39)"}]},{"id":"nd_mu6h3e0c_c2","componentId":"c_mu68sw8p_1h","laneRole":"services","executionUnit":28,"nodeTypeId":"service","label":"Lodge Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"PUT","url":"{base}/api/upm/claims/v1.0/lodge({claimId})","snakeStart":false,"description":"Lodge endpoint (from Confluence; the code reads it from GitHub variables). AU base: upmprod.internal.petsure.com.au:9248/PETSURE_UPM_API_BASIC. TPN base: tpupm.internal.petsure.com.au:9148/TRUPANION_PROD_API_BASIC.","properties":[{"key":"AU base","value":"upmprod.internal.petsure.com.au:9248/PETSURE_UPM_API_BASIC"},{"key":"TPN base","value":"tpupm.internal.petsure.com.au:9148/TRUPANION_PROD_API_BASIC"}]},{"id":"nd_mu6h3k1c_c7","componentId":"c_mu6gid7m_5i","laneRole":"functions","executionUnit":27,"nodeTypeId":"function","label":"UPM Routing Logic","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Routing: at startup the app reads CONFIGURED_INSURERS and loads a DYNAMIC_LODGE_API_{AU|TPN} block for each, each with its own HTTP client (Program.cs:78-86, 189-205). DynamicAPIAdapter.ClaimLodgeAsync (:48-57) matches the header against INSURER_CODE and sends PUT + If-Match: * to that insurer's CLAIM_LODGE_ENDPOINT. DynamicApiLodgeHttpHandler.cs adds that insurer's Basic credentials from Key Vault (DYNAMIC-API-USERNAME for AU, TPN-DYNAMIC-API-USERNAME for TPN). URLs come from GitHub variables (DYNAMIC_LODGE_API_TPN_BASE_URI and others)."},{"id":"nd_mu6h4vt9_cl","componentId":"c_mu68sw8p_1j","laneRole":"functions","executionUnit":29,"nodeTypeId":"function","label":"Duplicate Check","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6h50p8_cr","componentId":"c_mu68sw8p_1j","laneRole":"functions","executionUnit":30,"nodeTypeId":"function","label":"Fraud Check","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6h55ez_cx","componentId":"c_mu68sw8p_1j","laneRole":"functions","executionUnit":31,"nodeTypeId":"function","label":"Bank Details Check","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6h5jqx_d3","componentId":"c_mu68sw8p_1j","laneRole":"functions","executionUnit":32,"nodeTypeId":"function","label":"Request Medical Assessment","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6h6op0_d9","componentId":"c_mu6gid7m_5i","laneRole":"services","executionUnit":32,"nodeTypeId":"service","label":"Claw Init","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"api/Claims/CLAW-INIT-API","snakeStart":false,"description":"UPM calls it with Basic auth to start the straight-through process. It forwards the claim to Clawdia's CLAW-INIT-API, authenticating with managed identity (ClawAPIAdapter.cs:28-36).","properties":[{"key":"code","value":"ClawInit"}]},{"id":"nd_mu6hav2r_f6","componentId":"c_mu6gid7m_5i","laneRole":"services","executionUnit":40,"nodeTypeId":"service","label":"Write Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"api/Claims/Write","snakeStart":false,"description":"Clawdia writes the assessed claim to UPM (Entra ID scope Claims.ReadWrite). It checks the checksum and whether the claim is assigned to CLAWDIA.","properties":[{"key":"code","value":"WriteClaim"}]},{"id":"nd_mu6hc5fr_fw","componentId":"c_mu6gid7m_5i","laneRole":"functions","executionUnit":42,"nodeTypeId":"function","label":"Call UPM AU Write","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Not routing: always uses the single DYNAMIC_API client with the CLAWDIA credentials (DynamicAPIAdapter.cs:36,114-116, DynamicApiHttpHandler.cs:26-32), so it only reaches UPM AU."},{"id":"nd_mu6hdxhi_g2","componentId":"c_mu68sw8p_1h","laneRole":"services","executionUnit":42,"nodeTypeId":"service","label":"Write","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"{base}/api/upm/claims/v1.0/write","snakeStart":false,"description":"UPM claim write endpoint, AU only. Base: upmprod-capi.internal.petsure.com.au:9248.","properties":[{"key":"base","value":"upmprod-capi.internal.petsure.com.au:9248"}]},{"id":"nd_mu6heda4_g7","componentId":"c_mu68sw8p_1j","laneRole":"functions","executionUnit":42,"nodeTypeId":"function","label":"Benefit Calculation","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6heklz_gd","componentId":"c_mu68sw8p_1j","laneRole":"functions","executionUnit":45,"nodeTypeId":"function","label":"Payment Settlement","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6hfedd_gj","componentId":"c_mu6gid7m_5i","laneRole":"services","executionUnit":47,"nodeTypeId":"service","label":"GapOnly Benefit","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"api/Claims/GapOnly/Benefit","snakeStart":false,"description":"UPM pushes the assessed gap benefit, which is forwarded to COS.","properties":[{"key":"code","value":"Benefit"}]},{"id":"nd_mu6hg39x_gr","componentId":"c_mu6gid7m_5i","laneRole":"functions","executionUnit":48,"nodeTypeId":"function","label":"Forward to COS AUS","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Not routing: always uses the single COS_API client, base URL LZ_AU_COS_API_BASE_URI (CosAPIAdapter.cs:26-39). It only reaches COS AUS, which also serves TPN."},{"id":"nd_mu6jpi8o_gx","componentId":"c_mu68sw8p_1f","laneRole":"services","executionUnit":48,"nodeTypeId":"service","label":"Gap Only Benefit","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"api/GapOnly/Benefit","snakeStart":false,"description":"Receives the gap benefit from UPM via Dynamic CLAPI (claim ref and claim number, status, benefit paid, logical claims). It checks the benefit against the amount paid, saves it in COS and passes it on to VetHub. Dynamic CLAPI sends exactly this payload (GapOnlyBenefitModel, CosAPIAdapter.cs:29-39). The api/GapOnly/GapOnlyBenefit route is the cut-down one for third-party insurers (Vet Partners).","properties":[{"key":"code","value":"GapOnlyController.Benefit"}]},{"id":"nd_mu6jq9ad_ik","componentId":"c_mu68sw8p_1f","laneRole":"functions","executionUnit":47,"nodeTypeId":"function","label":"Prepare Benefit Req. for VetHub","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6jwbr6_pk","componentId":"c_mu68sw8p_1e","laneRole":"services","executionUnit":47,"nodeTypeId":"service","label":"Update Gap Benefit Amount","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"/api/Claim/{conversationId}/GapOnly/BenefitAmount","snakeStart":false,"description":"The insurer side (COS) posts the GapOnly benefit amount for a claim. Only authorised insurance providers can call it.","properties":[{"key":"code","value":"UpdateGapBenefitAmount (ClaimsController.cs:651)"}]},{"id":"nd_mu6jxxhr_pw","componentId":"c_mu68sw8p_1e","laneRole":"functions","executionUnit":48,"nodeTypeId":"function","label":"Update Benefit on Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Routing: decides where the outcome goes based on the practice's vet software (VpmsName). Tyro: sends the outcome to the Tyro webhook unless it was already sent (then returns 409); the Tyro response is saved (UpdateGapBenefit.cs:139-191). EzyVet with the request's UpdateVPMS flag true: sends it to EzyVet (PassGapOnlyToEzyVetAsync, UpdateGapBenefit.cs:246-250). All other vet software: nothing is sent; the outcome is only stored and the vet software collects it by polling VetHub.","properties":[{"key":"config","value":"Tyro:* settings in environments/prod.json"}]},{"id":"nd_mu6k0s7y_qf","componentId":"c_mu68sw8p_1e","laneRole":"data","executionUnit":48,"nodeTypeId":"data","label":"Vet Hub Conversation","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6k3lnu_st","componentId":"c_mu68sw8p_1c","laneRole":"services","executionUnit":49,"nodeTypeId":"service","label":"Tyro adjudicateClaim webhook","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"https://gaponly-api.tyrohealth.com/trpc/webhook.vethub.adjudicateClaim?batch=1","snakeStart":false,"description":"Tyro's webhook that receives the GapOnly outcome from VetHub. VetHub calls it with an OAuth token from auth.tyrohealth.com. Config key Tyro:TyroGapOnlyOutcomeEndpoint. Called from ExternalVetPracticeManager.cs:87.","properties":[{"key":"config","value":"Tyro:TyroGapOnlyOutcomeEndpoint"}]},{"id":"nd_mu6k427l_t1","componentId":"c_mu68sw8p_1c","laneRole":"functions","executionUnit":50,"nodeTypeId":"function","label":"Communication outcome polling","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6lxtwk_rv","componentId":"c_mu6lwr14_q8","laneRole":"services","executionUnit":33,"nodeTypeId":"service","label":"CLAW-INIT-API","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"https://ps-syd-prod-keyvault-func-app.petsure.com.au/api/CLAW-INIT-API","snakeStart":false,"description":"KeyVault Function App. Checks the claim, reads the CLAW on/off and audit-mode switches from Key Vault, and publishes a CloudEvent that starts the matching entry workflow. Routes by claim type (CosService.CheckCLAWConfigurations, :150-215): CSP -> PetSure.CLAW.EClaimCSP; VetHub eClaim -> EClaimVH; GapOnly (PayToServiceProvider = 1) -> GapOnly; other -> EClaimOther. If CLAW is off it returns CLAWOFF without publishing."},{"id":"nd_mu6lyims_s6","componentId":"c_mu6lwr14_q8","laneRole":"functions","executionUnit":35,"nodeTypeId":"function","label":"Easy Cohort","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6riemg_12","componentId":"c_mu6lwr14_q8","laneRole":"functions","executionUnit":36,"nodeTypeId":"function","label":"Calll GP Model","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6rj4xx_18","componentId":"c_mu6lwr14_q8","laneRole":"functions","executionUnit":37,"nodeTypeId":"function","label":"Apply BR to Prediction","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mu6rn4lz_1e","componentId":"c_mu6lwr14_q8","laneRole":"functions","executionUnit":40,"nodeTypeId":"function","label":"Prepare Write Request for UPM","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_muamj8fs_18","componentId":"c_mu68sw8p_1e","laneRole":"services","executionUnit":16,"nodeTypeId":"service","label":"Submit Attachment","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"/api/Claim/{conversationId}/Attachment/{attachmentId}","snakeStart":false,"description":"Uploads one attachment file to a claim. An attachment ID must first be requested with GET /api/Claim/{conversationId}/Attachment/NewConversationId.","properties":[{"key":"code","value":"SubmitAttachment (ClaimsController.cs:136)"}]},{"id":"nd_muamopuf_1i","componentId":"c_mu68sw8p_1e","laneRole":"data","executionUnit":16,"nodeTypeId":"data","label":"Vet Hub Conversation","isDuplicate":true,"dupOf":"nd_mu6k0s7y_qf","subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_muamsiy9_2i","componentId":"c_mu68sw8p_1f","laneRole":"data","executionUnit":14,"nodeTypeId":"data","label":"COS Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_muamwem4_53","componentId":"c_muamvohy_3k","laneRole":"services","executionUnit":17,"nodeTypeId":"service","label":"predict Treatment Code","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Not called over REST. COS ClaimsAutomationIntegration publishes the Event Grid event Petsure.ClaimsAutomation.Claim to topic ps-prod-egt-claimsautoclaims, which triggers the Logic App. The result comes back via POST api-cos-prod/api/Claims/ClaimsAutomation/Completed. The Logic App's own trigger name is not verified."},{"id":"nd_muawi8n6_8u","componentId":"c_mu68sw8p_1e","laneRole":"functions","executionUnit":6,"nodeTypeId":"function","label":"Save new Conversation","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_muawiqyl_92","componentId":"c_mu68sw8p_1e","laneRole":"data","executionUnit":6,"nodeTypeId":"data","label":"Vet Hub Conversation","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_muayr4fq_1l","componentId":"c_mu68sw8p_1e","laneRole":"services","executionUnit":7,"nodeTypeId":"service","label":"Submit Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"/api/Claim/{conversationId}","snakeStart":false,"description":"The vet software submits the claim as VetXML (default) or JSON. It checks required sections, GapOnly service hours, public holidays and whether the practice can do GapOnly claims. Returns 201.","properties":[{"key":"code","value":"SubmitClaim (ClaimsController.cs:202)"}]},{"id":"nd_muaz8m01_8f","componentId":"c_mu68sw8p_1f","laneRole":"functions","executionUnit":14,"nodeTypeId":"function","label":"Save COS Claim","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_muazioud_a5","componentId":"c_muamvohy_3k","laneRole":"functions","executionUnit":17,"nodeTypeId":"function","label":"Convert to T*","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_muazqstn_bt","componentId":"c_mu6lzxlj_sm","laneRole":"services","executionUnit":17,"nodeTypeId":"service","label":"Sophia Junior api","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Not verified (the Claims Automation and ML repos were not accessible)."},{"id":"nd_muazu5f4_by","componentId":"c_mu6lzxlj_sm","laneRole":"functions","executionUnit":17,"nodeTypeId":"function","label":"Sophia Junior Model","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_muazvc5y_cj","componentId":"c_muamvohy_3k","laneRole":"functions","executionUnit":19,"nodeTypeId":"function","label":"Apply Business Rules","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_muazwbcm_cp","componentId":"c_muamvohy_3k","laneRole":"functions","executionUnit":20,"nodeTypeId":"function","label":"Publish to Cos","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mukvjamj_12","componentId":"c_mu6lzxlj_sm","laneRole":"services","executionUnit":36,"nodeTypeId":"service","label":"GP Model Endpoint","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"/score","snakeStart":false,"description":"Managed online endpoint ps-prd-claimsauto-gp, deployment gp-prod-deployment, workspace ps-prd-ml-ws-claimsauto, in the legacy subscription 60181c42... (ClawGP/settings.toml:132-139). Called by Clawdia's GetGPModelOutput function using app setting GP_MODEL_PREDICTION_API_URL and bearer token GP-MODEL-PREDICTION-API-TOKEN. Two models sit behind the endpoint: the GP model (sleepy_king-14.pt) and a multiple-diagnosis model (musing_onion_md.pkl). The /score path is the standard Azure ML path, not confirmed in config.","properties":[{"key":"endpoint","value":"ps-prd-claimsauto-gp"},{"key":"deployment","value":"gp-prod-deployment"},{"key":"workspace","value":"ps-prd-ml-ws-claimsauto"}]},{"id":"nd_mukvjssw_18","componentId":"c_mu6lzxlj_sm","laneRole":"functions","executionUnit":36,"nodeTypeId":"function","label":"GP Model","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mukvk9va_1e","componentId":"c_mu6lzxlj_sm","laneRole":"functions","executionUnit":37,"nodeTypeId":"function","label":"Case Linking","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false,"description":"Not found in the GP model code; it may live elsewhere or be planned. To be confirmed."},{"id":"nd_mukwpk5m_27","componentId":"c_mu68sw8p_1f","laneRole":"functions","executionUnit":19,"nodeTypeId":"function","label":"Lodge Claim in UPM","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","snakeStart":false},{"id":"nd_mv4msr8q_18","componentId":"c_mu68sw8p_1e","laneRole":"data","executionUnit":12,"nodeTypeId":"data","label":"Vet Hub Conversation","isDuplicate":true,"dupOf":"nd_mu6k0s7y_qf","subRow":0,"restApi":false,"httpMethod":"","url":"","description":"","properties":[],"snakeStart":false},{"id":"nd_clw_loadclaim","componentId":"c_mu6lwr14_q8","laneRole":"functions","executionUnit":33,"nodeTypeId":"function","label":"Load Claim Data","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","description":"","properties":[]},{"id":"nd_clw_loadpolicy","componentId":"c_mu6lwr14_q8","laneRole":"functions","executionUnit":34,"nodeTypeId":"function","label":"Load Policy Data","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","description":"","properties":[]},{"id":"nd_clw_maplogic","componentId":"c_mu6lwr14_q8","laneRole":"functions","executionUnit":38,"nodeTypeId":"function","label":"Map Data into Logic Claims","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","description":"","properties":[]},{"id":"nd_clapi_attach","componentId":"c_mu68sw8p_1g","laneRole":"services","executionUnit":25,"nodeTypeId":"service","label":"Submit Claim Attachment","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"api/Claims/Attachments","description":"COS calls it between Submit Claim and Finish Submit Claim; forwards the attachment to DAPI api/Claims/SubmitDocument.","properties":[]},{"id":"nd_dapi_submitdoc","componentId":"c_mu6gjkxs_6z","laneRole":"services","executionUnit":25,"nodeTypeId":"service","label":"Submit Document","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":true,"httpMethod":"POST","url":"api/Claims/SubmitDocument","description":"Receives claim attachments forwarded by CLAPI Submit Claim Attachment.","properties":[]},{"id":"nd_mvokwpit_19","componentId":"c_x94icthf","laneRole":"data","executionUnit":26,"nodeTypeId":"data","label":"DS* Tables","isDuplicate":true,"dupOf":"nd_mu6gqg3q_8h","subRow":0,"restApi":false,"httpMethod":"","url":"","description":"","properties":[],"snakeStart":false},{"id":"nd_mvol0tm2_1b","componentId":"c_mu6gjkxs_6z","laneRole":"data","executionUnit":25,"nodeTypeId":"data","label":"File Conent in Windows File Share","isDuplicate":false,"dupOf":null,"subRow":0,"restApi":false,"httpMethod":"","url":"","description":"The folder comes from the DestinationClaimFilePath setting. At deploy time it\u2019s read from a Key Vault secret: the secret name is in GitHub variable CLAIM_DES_PATH and the vault in CSP_KEYVAULT. The actual paths aren\u2019t in the repo; Confluence and the infrastructure document give them as:\n\nAU: \\\\PS-BCS-PRD-API1\\auapidocuments\nTPN: \\\\PS-BCS-PRD-API1\\PRD_TP_UPMClaimDoc","properties":[],"snakeStart":false},{"id":"nd_mvol21hv_1d","componentId":"c_x94icthf","laneRole":"data","executionUnit":25,"nodeTypeId":"data","label":"DS* Tables","isDuplicate":true,"dupOf":"nd_mu6gqg3q_8h","subRow":0,"restApi":false,"httpMethod":"","url":"","description":"","properties":[],"snakeStart":false}],"connections":[{"id":"cn_mu68v811_1r","sourceNodeId":"nd_mu68uxr1_1p","targetNodeId":"nd_mu68v811_1q","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6aw8jg_39","sourceNodeId":"nd_mu6avy4h_37","targetNodeId":"nd_mu6aw8jg_38","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6awk8f_3a","sourceNodeId":"nd_mu6av8r7_34","targetNodeId":"nd_mu6avy4h_37","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6gnjs0_81","sourceNodeId":"nd_mu6gmuf9_7o","targetNodeId":"nd_mu6gnjs0_80","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6gpt7h_8c","sourceNodeId":"nd_mu6goysj_86","targetNodeId":"nd_mu6gpt7h_8b","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6gqg3q_8i","sourceNodeId":"nd_mu6gpt7h_8b","targetNodeId":"nd_mu6gqg3q_8h","relTypeId":"access","label":"insert","routingOverride":null},{"id":"cn_mu6gr3u8_8n","sourceNodeId":"nd_mu6gnjs0_80","targetNodeId":"nd_mu6goysj_86","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6gs4rf_8v","sourceNodeId":"nd_mu6grkf4_8q","targetNodeId":"nd_mu6gqg3q_8h","relTypeId":"access","label":"read","routingOverride":null,"waypoints":[{"sx":-240.80000000000018,"sy":0,"tx":258.6999999999998,"ty":110},{"sx":-499.5,"sy":0,"tx":0,"ty":110}]},{"id":"cn_mu6gta4n_93","sourceNodeId":"nd_mu6grkf4_8q","targetNodeId":"nd_mu6gst79_8y","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6guleu_9e","sourceNodeId":"nd_mu6gu2vo_96","targetNodeId":"nd_mu6guleu_9d","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6gv90w_9u","sourceNodeId":"nd_mu6guleu_9d","targetNodeId":"nd_mu6guoti_9j","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6gvzr4_a0","sourceNodeId":"nd_mu6guoti_9j","targetNodeId":"nd_mu6gvzr4_9z","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6h3umi_cc","sourceNodeId":"nd_mu6h0sl9_bn","targetNodeId":"nd_mu6h3k1c_c7","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6h3x80_cf","sourceNodeId":"nd_mu6h3k1c_c7","targetNodeId":"nd_mu6h3e0c_c2","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6h41se_ci","sourceNodeId":"nd_mu6h3e0c_c2","targetNodeId":"nd_mu6gst79_8y","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6h4vta_cm","sourceNodeId":"nd_mu6gst79_8y","targetNodeId":"nd_mu6h4vt9_cl","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6h50p8_cs","sourceNodeId":"nd_mu6h4vt9_cl","targetNodeId":"nd_mu6h50p8_cr","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6h55ez_cy","sourceNodeId":"nd_mu6h50p8_cr","targetNodeId":"nd_mu6h55ez_cx","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6h5jqx_d4","sourceNodeId":"nd_mu6h55ez_cx","targetNodeId":"nd_mu6h5jqx_d3","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6hc5fr_fx","sourceNodeId":"nd_mu6hav2r_f6","targetNodeId":"nd_mu6hc5fr_fw","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6heda4_g8","sourceNodeId":"nd_mu6hdxhi_g2","targetNodeId":"nd_mu6heda4_g7","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6heklz_ge","sourceNodeId":"nd_mu6heda4_g7","targetNodeId":"nd_mu6heklz_gd","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6hfw4a_go","sourceNodeId":"nd_mu6hc5fr_fw","targetNodeId":"nd_mu6hdxhi_g2","relTypeId":"serving","label":"","routingOverride":null},{"id":"cn_mu6hg39x_gs","sourceNodeId":"nd_mu6hfedd_gj","targetNodeId":"nd_mu6hg39x_gr","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6jq9ad_il","sourceNodeId":"nd_mu6jpi8o_gx","targetNodeId":"nd_mu6jq9ad_ik","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6jwbr6_pl","sourceNodeId":"nd_mu6jq9ad_ik","targetNodeId":"nd_mu6jwbr6_pk","relTypeId":"serving","label":"","routingOverride":null},{"id":"cn_mu6jzkcf_q5","sourceNodeId":"nd_mu6jwbr6_pk","targetNodeId":"nd_mu6jxxhr_pw","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6k11v1_qr","sourceNodeId":"nd_mu6jxxhr_pw","targetNodeId":"nd_mu6k0s7y_qf","relTypeId":"access","label":"update benefit","routingOverride":null},{"id":"cn_mu6k3rlm_sy","sourceNodeId":"nd_mu6jxxhr_pw","targetNodeId":"nd_mu6k3lnu_st","relTypeId":"flow","label":"VpmsName = Tyro","routingOverride":null},{"id":"cn_mu6k4pdy_t6","sourceNodeId":"nd_mu6k427l_t1","targetNodeId":"nd_mu6k0s7y_qf","relTypeId":"access","label":"read","routingOverride":null},{"id":"cn_mu6k5rth_tl","sourceNodeId":"nd_mu6hg39x_gr","targetNodeId":"nd_mu6jpi8o_gx","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6lhbth_18","sourceNodeId":"nd_mu6h5jqx_d3","targetNodeId":"nd_mu6heda4_g7","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6m0qp9_tr","sourceNodeId":"nd_mu6h6op0_d9","targetNodeId":"nd_mu6lxtwk_rv","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6riemg_13","sourceNodeId":"nd_mu6lyims_s6","targetNodeId":"nd_mu6riemg_12","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6rj4xx_19","sourceNodeId":"nd_mu6riemg_12","targetNodeId":"nd_mu6rj4xx_18","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mu6rnu0y_1k","sourceNodeId":"nd_mu6rn4lz_1e","targetNodeId":"nd_mu6hav2r_f6","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muamoyje_1n","sourceNodeId":"nd_mu691d7m_2f","targetNodeId":"nd_muamopuf_1i","relTypeId":"access","label":"write","routingOverride":null},{"id":"cn_muawibp6_8x","sourceNodeId":"nd_mu68v811_1q","targetNodeId":"nd_muawi8n6_8u","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muawiqyl_93","sourceNodeId":"nd_muawi8n6_8u","targetNodeId":"nd_muawiqyl_92","relTypeId":"access","label":"create","routingOverride":null},{"id":"cn_muays9xn_1y","sourceNodeId":"nd_mu68uxr1_1p","targetNodeId":"nd_muayr4fq_1l","relTypeId":"flow","label":"","routingOverride":null,"waypoints":[{"sx":108.10000000000002,"sy":0,"tx":-113.39999999999998,"ty":-230},{"sx":221.5,"sy":0,"tx":0,"ty":-230},{"sx":221.5,"sy":18.47005923890967,"tx":0,"ty":-211.52994076109033}]},{"id":"cn_muayzwdz_4u","sourceNodeId":"nd_muayr4fq_1l","targetNodeId":"nd_mu68vwet_1s","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muaz0pp5_5o","sourceNodeId":"nd_muamj8fs_18","targetNodeId":"nd_mu691d7m_2f","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muaza9pu_92","sourceNodeId":"nd_mu6asivb_30","targetNodeId":"nd_muaz8m01_8f","relTypeId":"flow","label":"","routingOverride":null,"waypoints":[{"sx":-162.24596173823966,"sy":0,"tx":356.75403826176034,"ty":-60},{"sx":-519,"sy":0,"tx":0,"ty":-60}]},{"id":"cn_muazan4s_9b","sourceNodeId":"nd_muaz8m01_8f","targetNodeId":"nd_muamsiy9_2i","relTypeId":"access","label":"Create","routingOverride":null},{"id":"cn_muazioud_a6","sourceNodeId":"nd_muamwem4_53","targetNodeId":"nd_muazioud_a5","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muazugob_c3","sourceNodeId":"nd_muazu5f4_by","targetNodeId":"nd_muazqstn_bt","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muazui1w_c6","sourceNodeId":"nd_muazqstn_bt","targetNodeId":"nd_muazu5f4_by","relTypeId":"flow","label":"read","routingOverride":null},{"id":"cn_muazuv8x_c9","sourceNodeId":"nd_muazu5f4_by","targetNodeId":"nd_muazqstn_bt","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muazv6b7_ce","sourceNodeId":"nd_muazioud_a5","targetNodeId":"nd_muazqstn_bt","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muazvc5y_ck","sourceNodeId":"nd_muazioud_a5","targetNodeId":"nd_muazvc5y_cj","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muazwbcm_cq","sourceNodeId":"nd_muazvc5y_cj","targetNodeId":"nd_muazwbcm_cp","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muazwwlc_cv","sourceNodeId":"nd_mu6aw8jg_38","targetNodeId":"nd_muamwem4_53","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mukvjamj_13","sourceNodeId":"nd_mu6riemg_12","targetNodeId":"nd_mukvjamj_12","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mukvjssw_19","sourceNodeId":"nd_mukvjamj_12","targetNodeId":"nd_mukvjssw_18","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mukvk9va_1f","sourceNodeId":"nd_mukvjssw_18","targetNodeId":"nd_mukvk9va_1e","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mukvua9y_1r","sourceNodeId":"nd_mu6heda4_g7","targetNodeId":"nd_mu6hfedd_gj","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mukwpk5m_28","sourceNodeId":"nd_mu6aw8jg_38","targetNodeId":"nd_mukwpk5m_27","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mukwq4gy_2b","sourceNodeId":"nd_mukwpk5m_27","targetNodeId":"nd_mu6gmuf9_7o","relTypeId":"flow","label":"","routingOverride":null,"waypoints":[{"sx":119,"sy":0,"tx":-300.5,"ty":-520},{"sx":419.5,"sy":0,"tx":0,"ty":-520}]},{"id":"cn_mukwq9e6_2c","sourceNodeId":"nd_mukwpk5m_27","targetNodeId":"nd_mu6gu2vo_96","relTypeId":"flow","label":"","routingOverride":null,"waypoints":[{"sx":341.4000000000001,"sy":0,"tx":-577.5999999999999,"ty":-520},{"sx":919.4353543858429,"sy":0,"tx":0.4353543858428566,"ty":-520},{"sx":919.4353543858429,"sy":295.9081146942028,"tx":0.4353543858428566,"ty":-224.09188530579718}]},{"id":"cn_mukwqdek_2d","sourceNodeId":"nd_mukwpk5m_27","targetNodeId":"nd_mu6h0sl9_bn","relTypeId":"flow","label":"","routingOverride":null,"waypoints":[{"sx":376.3333333333335,"sy":0,"tx":-770.6666666666665,"ty":-1100},{"sx":1147,"sy":0,"tx":0,"ty":-1100}]},{"id":"cn_muxg8ycx_1u","sourceNodeId":"nd_mu6h5jqx_d3","targetNodeId":"nd_mu6h6op0_d9","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muxlhjsg_1v","sourceNodeId":"nd_mu68vwet_1s","targetNodeId":"nd_mu68w65d_1u","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_muz2o2p6_14","sourceNodeId":"nd_mu68uxr1_1p","targetNodeId":"nd_muamj8fs_18","relTypeId":"flow","label":"","routingOverride":null,"waypoints":[{"sx":462.3666666666668,"sy":0,"tx":-731.1333333333332,"ty":-230},{"sx":1193.5,"sy":0,"tx":0,"ty":-230}]},{"id":"cn_mv4mlcl5_14","sourceNodeId":"nd_muawi8n6_8u","targetNodeId":"nd_mu68vwet_1s","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mv4muoeo_1b","sourceNodeId":"nd_mu68w65d_1u","targetNodeId":"nd_mv4msr8q_18","relTypeId":"access","label":"write","routingOverride":null},{"id":"cn_mva7e35a_16","sourceNodeId":"nd_mu6lxtwk_rv","targetNodeId":"nd_clw_loadclaim","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mva7e367_17","sourceNodeId":"nd_clw_loadclaim","targetNodeId":"nd_clw_loadpolicy","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mva7e372_18","sourceNodeId":"nd_clw_loadpolicy","targetNodeId":"nd_mu6lyims_s6","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mva7e38s_19","sourceNodeId":"nd_mu6rj4xx_18","targetNodeId":"nd_clw_maplogic","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mva7e39l_1a","sourceNodeId":"nd_clw_maplogic","targetNodeId":"nd_mu6rn4lz_1e","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mvkk7c7g_1a","sourceNodeId":"nd_muaz8m01_8f","targetNodeId":"nd_mu6av8r7_34","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mvokqrpq_16","sourceNodeId":"nd_mukwpk5m_27","targetNodeId":"nd_clapi_attach","relTypeId":"flow","label":"","routingOverride":null,"waypoints":[{"sx":277.9000000000001,"sy":0,"tx":-393.0999999999999,"ty":-520},{"sx":671,"sy":0,"tx":0,"ty":-520}]},{"id":"cn_mvokqrqn_17","sourceNodeId":"nd_clapi_attach","targetNodeId":"nd_dapi_submitdoc","relTypeId":"flow","label":"","routingOverride":null},{"id":"cn_mvokx5jr_1a","sourceNodeId":"nd_mu6gvzr4_9z","targetNodeId":"nd_mvokwpit_19","relTypeId":"access","label":"write","routingOverride":null},{"id":"cn_mvol1yul_1c","sourceNodeId":"nd_dapi_submitdoc","targetNodeId":"nd_mvol0tm2_1b","relTypeId":"access","label":"write","routingOverride":null},{"id":"cn_mvol2qjo_1e","sourceNodeId":"nd_dapi_submitdoc","targetNodeId":"nd_mvol21hv_1d","relTypeId":"access","label":"write","routingOverride":null,"waypoints":[{"sx":-156.57136007942518,"sy":0,"tx":-156.57136007942518,"ty":-1050},{"sx":-156.57136007942518,"sy":1050,"tx":-156.57136007942518,"ty":0}]}],"metamodel":{"nodeTypes":[{"id":"service","name":"Service","laneRole":"services","shape":"stadium","icon":"socket","fillColor":"#d3ecea","borderColor":"#2a827d","textColor":"#0f2f2d"},{"id":"function","name":"Function","laneRole":"functions","shape":"rounded","icon":"chevron","fillColor":"#8ed3ce","borderColor":"#1f6f6b","textColor":"#0a2c2a"},{"id":"event","name":"Event","laneRole":"events","shape":"stadium","icon":"bolt","fillColor":"#ffe1a6","borderColor":"#b5820c","textColor":"#3a2a00"},{"id":"data","name":"Data","laneRole":"data","shape":"data-object","icon":"db","fillColor":"#ffffff","borderColor":"#5b6470","textColor":"#1a2029"}]}}</script>
+
+<div class="wrap">
+  <header class="top">
+    <div class="meta">
+      <span class="eyebrow">Process Duration Mapper</span>
+      <h1 id="diagram-title">Diagram</h1>
+      <p class="muted" id="diagram-sub"></p>
+    </div>
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Points shown">
+        <button type="button" id="mode-services" data-mode="services">Service calls</button>
+        <button type="button" id="mode-functions" data-mode="functions">+ Functions</button>
+        <button type="button" id="mode-all" data-mode="all">+ Data</button>
+      </div>
+      <label class="btn" for="load-diagram">Load diagram JSON</label>
+      <input type="file" id="load-diagram" accept=".json,application/json" class="sr">
+      <button type="button" id="save-session">Save session</button>
+      <label class="btn" for="open-session">Open session</label>
+      <input type="file" id="open-session" accept=".json,application/json" class="sr">
+    </div>
+  </header>
+
+  <section class="panel" aria-labelledby="h-map">
+    <div class="panel-head">
+      <h2 id="h-map">Flow map</h2>
+      <div class="legend">
+        <span><i style="background:#2a827d"></i>Service call</span>
+        <span><i style="background:#8ed3ce;border-color:#1f6f6b"></i>Function</span>
+        <span><i style="background:#ffffff;border-color:#5b6470;border-radius:2px"></i>Data</span>
+        <span><i style="border-color:var(--start)"></i>Start</span>
+        <span><i style="border-color:var(--end)"></i>End</span>
+      </div>
+    </div>
+    <p class="muted" id="map-hint">Click a point to set where the duration starts, then click a second point to set where it ends. Lines that skip hidden steps are drawn through them.</p>
+    <div class="diagram-scroll" id="main-diagram"></div>
+  </section>
+
+  <div class="editor-grid">
+    <section class="panel" aria-labelledby="h-editor">
+      <form id="duration-form" novalidate style="display:flex;flex-direction:column;gap:12px">
+        <div class="panel-head"><h2 id="h-editor">New duration</h2><button type="button" class="ghost" id="cancel-edit" hidden>Cancel edit</button></div>
+        <div class="pair">
+          <label class="field">Starts at<select id="sel-from"></select></label>
+          <button type="button" class="swap" id="swap" title="Swap start and end" aria-label="Swap start and end">⇄</button>
+          <label class="field">Ends at<select id="sel-to"></select></label>
+        </div>
+        <div id="path-note" class="note" hidden></div>
+        <div class="preview" id="preview" hidden></div>
+        <label class="field">Title<input type="text" id="f-title" placeholder="e.g. Claim lodged in UPM after COS picks it up"></label>
+        <label class="field">Description<textarea id="f-desc" rows="3" placeholder="What starts the clock, what stops it, and why this interval matters."></textarea></label>
+        <label class="field">Target or measured time (optional)<input type="text" id="f-target" placeholder="e.g. p95 under 2 s"></label>
+        <p class="err" id="form-err" hidden></p>
+        <div class="toolbar"><button type="submit" class="primary" id="add-btn">Add duration</button><button type="button" id="clear-btn">Clear selection</button></div>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="h-records">
+      <div class="panel-head"><h2 id="h-records">Duration records</h2><span class="muted" id="rec-count"></span></div>
+      <div class="records" id="records"></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="h-points">
+    <div class="panel-head"><h2 id="h-points">Points by component</h2><span class="muted">Notes go into the markdown under each point</span></div>
+    <div class="comp-notes" id="points"></div>
+  </section>
+
+  <form class="panel" id="gen-form" aria-labelledby="h-gen">
+    <div class="gen">
+      <div style="display:flex;flex-direction:column;gap:2px;min-width:0"><h2 id="h-gen">Markdown document</h2><p class="muted">Durations with their diagram images, the main flow, and the point notes by component.</p></div>
+      <button type="submit" class="primary" id="gen-btn">Generate markdown</button>
+    </div>
+    <div class="out" id="out" hidden style="display:flex;flex-direction:column;gap:10px">
+      <div class="toolbar">
+        <button type="button" id="copy-md">Copy markdown</button>
+        <button type="button" id="dl-md">Download .md</button>
+        <button type="button" id="dl-zip">Download .zip (md + PNGs)</button>
+        <span class="muted" style="font-size:12px">Copy and .md embed images inline; the .zip keeps them as separate files.</span>
+      </div>
+      <label class="field">Preview (image data shortened)<textarea id="md-preview" readonly spellcheck="false"></textarea></label>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+"use strict";
+const LANE_ORDER = {services:0, functions:1, events:2, data:3};
+const TYPE_STYLE = {
+  service:{fill:"#2a827d", stroke:"#174c49"},
+  function:{fill:"#8ed3ce", stroke:"#1f6f6b"},
+  event:{fill:"#ffe1a6", stroke:"#b5820c"},
+  data:{fill:"#ffffff", stroke:"#5b6470"}
+};
+const MODE_LABEL = {services:"Service calls", functions:"Service calls + functions", all:"All points incl. data"};
+const MAIN_PAL = {
+  bg:"var(--d-row-a)", rowA:"var(--d-row-a)", rowB:"var(--d-row-b)", grid:"var(--d-grid)", text:"var(--d-text)", muted:"var(--d-muted)",
+  edge:"var(--d-edge)", hl:"var(--d-hl)", start:"var(--start)", end:"var(--end)", access:"#a0703c", head:"var(--d-row-b)"
+};
+const IMG_PAL = {
+  bg:"#ffffff", rowA:"#ffffff", rowB:"#f2f6f6", grid:"#e1e9e8", text:"#1a2a29", muted:"#6b7b7a",
+  edge:"#9aa8a7", hl:"#1f6f6b", start:"#0f766e", end:"#c2410c", access:"#a0703c", head:"#eef3f3"
+};
+const IMG_FONT = "Arial, Helvetica, sans-serif";
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } },
+  set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2600); }
+
+/* ---------- model ---------- */
+let D = null;          // prepared diagram
+let S = null;          // working state
+let viewCache = null;
+
+function prepare(raw){
+  if(!raw || !Array.isArray(raw.nodes) || !Array.isArray(raw.components)) throw new Error("This file has no components or nodes list.");
+  const comps = raw.components.map((c,i)=>({...c, idx:i}));
+  const comp = Object.fromEntries(comps.map(c=>[c.id,c]));
+  const nodes = raw.nodes.filter(n=>comp[n.componentId]).map(n=>({...n, executionUnit:Number(n.executionUnit)||0}));
+  const node = Object.fromEntries(nodes.map(n=>[n.id,n]));
+  const edges = (raw.connections||[]).filter(c=>node[c.sourceNodeId]&&node[c.targetNodeId])
+    .map(c=>({id:c.id, s:c.sourceNodeId, t:c.targetNodeId, rel:c.relTypeId||"flow", label:c.label||""}));
+  const flow = edges.filter(e=>e.rel!=="access" && e.rel!=="association");
+  const out={}, inn={};
+  for(const e of flow){ (out[e.s] ||= []).push(e); (inn[e.t] ||= []).push(e); }
+  const v = raw.version ? [raw.version.major,raw.version.minor,raw.version.patch].filter(x=>x!=null).join(".") : "";
+  return {raw, title: raw.title || "Untitled diagram", version:v, comps, comp, nodes, node, edges, flow, out, inn};
+}
+const keyOf = n => [n.executionUnit, D.comp[n.componentId].idx, LANE_ORDER[n.laneRole] ?? 9, n.subRow||0];
+function cmpNodes(a,b){ const ka=keyOf(D.node[a]), kb=keyOf(D.node[b]); for(let i=0;i<ka.length;i++){ if(ka[i]!==kb[i]) return ka[i]-kb[i]; } return 0; }
+
+function visibleSet(mode){
+  const V = new Set();
+  for(const n of D.nodes){
+    const isData = n.nodeTypeId==="data" || n.laneRole==="data";
+    if(mode==="all") V.add(n.id);
+    else if(mode==="functions"){ if(!isData) V.add(n.id); }
+    else if(n.nodeTypeId==="service" || (!isData && !(D.inn[n.id]||[]).length)) V.add(n.id);
+  }
+  return V;
+}
+/* edges between visible points, walking through hidden steps */
+function collapse(V){
+  const res=[], seen=new Set();
+  for(const v of V){
+    const visited=new Set([v]);
+    const stack=(D.out[v]||[]).map(e=>({e, first:e}));
+    while(stack.length){
+      const {e, first}=stack.pop(); const w=e.t;
+      if(visited.has(w)) continue; visited.add(w);
+      if(V.has(w)){
+        const k=v+">"+w;
+        if(!seen.has(k)){ seen.add(k); const direct = first===e; res.push({s:v, t:w, rel: direct? e.rel : "flow", direct}); }
+        continue;
+      }
+      for(const n of (D.out[w]||[])) stack.push({e:n, first});
+    }
+  }
+  return res;
+}
+function reach(start, fwd){
+  const seen=new Set([start]), st=[start];
+  while(st.length){ const v=st.pop(); for(const e of ((fwd?D.out[v]:D.inn[v])||[])){ const w=fwd?e.t:e.s; if(!seen.has(w)){ seen.add(w); st.push(w); } } }
+  return seen;
+}
+function pathNodes(a,b){
+  if(!a||!b||a===b) return new Set();
+  const f=reach(a,true); if(!f.has(b)) return new Set();
+  const bk=reach(b,false); return new Set([...f].filter(x=>bk.has(x)));
+}
+function getView(){
+  if(viewCache && viewCache.mode===S.mode) return viewCache;
+  const V=visibleSet(S.mode);
+  viewCache={mode:S.mode, V, edges:collapse(V)};
+  return viewCache;
+}
+/* order steps along the flow (topological, ties by execution unit) */
+function orderFlow(ids, edges){
+  const set=new Set(ids), indeg=new Map(ids.map(i=>[i,0])), adj=new Map(ids.map(i=>[i,[]]));
+  for(const e of edges){ if(set.has(e.s)&&set.has(e.t)&&e.s!==e.t){ adj.get(e.s).push(e.t); indeg.set(e.t, indeg.get(e.t)+1); } }
+  const ready=ids.filter(i=>!indeg.get(i)).sort(cmpNodes), out=[], done=new Set();
+  while(ready.length){ const v=ready.shift(); if(done.has(v)) continue; done.add(v); out.push(v);
+    for(const w of adj.get(v)){ indeg.set(w, indeg.get(w)-1); if(indeg.get(w)===0){ ready.push(w); ready.sort(cmpNodes); } } }
+  const rest=ids.filter(i=>!done.has(i)).sort(cmpNodes);
+  return out.concat(rest);
+}
+
+/* ---------- drawing ---------- */
+function wrap(text, n, max){
+  const words=String(text||"").split(/\s+/).filter(Boolean); const lines=[]; let cur="";
+  for(let w of words){
+    while(w.length>n){ if(cur){ lines.push(cur); cur=""; } lines.push(w.slice(0,n-1)+"-"); w=w.slice(n-1); }
+    const nx = cur? cur+" "+w : w;
+    if(nx.length<=n) cur=nx; else { lines.push(cur); cur=w; }
+  }
+  if(cur) lines.push(cur);
+  if(lines.length>max){ const keep=lines.slice(0,max); keep[max-1]=keep[max-1].slice(0,n-1).replace(/\s+\S*$/,"")+"…"; return keep; }
+  return lines;
+}
+function buildSVG(spec){
+  const P=spec.pal, idp=spec.idp, font=spec.font||"var(--font-sans)";
+  const LBL=178, COLW=128, R=9, STACK=78, PADY=10, HEAD=26;
+  const top0 = spec.title ? 60 : 0;
+  const colX=new Map(spec.cols.map((eu,i)=>[eu, LBL + i*COLW + COLW/2]));
+  const pos=new Map(), rows=[]; let y=top0+HEAD;
+  const byComp={}; for(const id of spec.nodes){ const n=D.node[id]; (byComp[n.componentId] ||= []).push(n); }
+  for(const cid of spec.rows){
+    const cells=new Map();
+    for(const n of (byComp[cid]||[])){ if(!colX.has(n.executionUnit)) continue; if(!cells.has(n.executionUnit)) cells.set(n.executionUnit,[]); cells.get(n.executionUnit).push(n); }
+    let maxS=1; for(const list of cells.values()){ list.sort((a,b)=>cmpNodes(a.id,b.id)); maxS=Math.max(maxS,list.length); }
+    const h=maxS*STACK+PADY;
+    for(const [eu,list] of cells) list.forEach((n,i)=>pos.set(n.id,{x:colX.get(eu), y:y+PADY/2+i*STACK+22, bg:rows.length%2?P.rowB:P.rowA}));
+    rows.push({cid,y,h}); y+=h;
+  }
+  const W=LBL+spec.cols.length*COLW+12, H=y+8;
+  const st=(o)=>Object.entries(o).map(([k,v])=>`${k}:${v}`).join(";");
+  const p=[];
+  p.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="font-family:${font}" role="img" aria-label="${esc(spec.aria||"Flow diagram")}">`);
+  const mk=(name,color)=>`<marker id="${idp}-${name}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:${color}"/></marker>`;
+  p.push(`<defs>${mk("n",P.edge)}${mk("h",P.hl)}${mk("a",P.access)}${mk("g",P.muted)}</defs>`);
+  p.push(`<rect x="0" y="0" width="${W}" height="${H}" style="fill:${P.bg}"/>`);
+  if(spec.title){
+    p.push(`<text x="16" y="26" style="fill:${P.text};font-size:16px;font-weight:700">${esc(spec.title)}</text>`);
+    if(spec.subtitle) p.push(`<text x="16" y="46" style="fill:${P.muted};font-size:11.5px">${esc(spec.subtitle)}</text>`);
+  }
+  // header + grid
+  p.push(`<rect x="0" y="${top0}" width="${W}" height="${HEAD}" style="fill:${P.head}"/>`);
+  p.push(`<text x="12" y="${top0+17}" style="fill:${P.muted};font-size:10px;font-weight:700;letter-spacing:.06em">COMPONENT</text>`);
+  spec.cols.forEach((eu,i)=>{ const cx=LBL+i*COLW+COLW/2; p.push(`<text x="${cx}" y="${top0+17}" text-anchor="middle" style="fill:${P.muted};font-size:10px;font-weight:600">EU ${eu}</text>`); });
+  rows.forEach((r,i)=>{
+    const c=D.comp[r.cid];
+    p.push(`<rect x="0" y="${r.y}" width="${W}" height="${r.h}" style="fill:${i%2?P.rowB:P.rowA}"/>`);
+    p.push(`<line x1="0" x2="${W}" y1="${r.y}" y2="${r.y}" style="stroke:${P.grid};stroke-width:1"/>`);
+    p.push(`<rect x="12" y="${r.y+12}" width="10" height="10" rx="2" style="fill:${c.color||P.muted}"/>`);
+    wrap(c.title,21,2).forEach((ln,j)=>p.push(`<text x="28" y="${r.y+21+j*15}" style="fill:${P.text};font-size:12.5px;font-weight:600">${esc(ln)}</text>`));
+    const nl=Math.min(2,wrap(c.title,21,2).length);
+    const sub=[c.external?"external":"", c.description||""].filter(Boolean).join(" · ");
+    if(sub) wrap(sub,27,2).forEach((ln,j)=>p.push(`<text x="28" y="${r.y+21+nl*15+j*13}" style="fill:${P.muted};font-size:10.5px">${esc(ln)}</text>`));
+  });
+  p.push(`<line x1="${LBL-4}" x2="${LBL-4}" y1="${top0}" y2="${H}" style="stroke:${P.grid};stroke-width:1"/>`);
+  for(let i=1;i<spec.cols.length;i++){ const x=LBL+i*COLW; p.push(`<line x1="${x}" x2="${x}" y1="${top0+HEAD}" y2="${H}" style="stroke:${P.grid};stroke-width:1;stroke-dasharray:2 4"/>`); }
+  // edges
+  const keys=new Set(spec.edges.map(e=>e.s+">"+e.t));
+  const order={dim:0,normal:1,gap:2,hl:3};
+  for(const e of [...spec.edges].sort((a,b)=>(order[a.state]||1)-(order[b.state]||1))){
+    const a=pos.get(e.s), b=pos.get(e.t); if(!a||!b) continue;
+    let d; const off = keys.has(e.t+">"+e.s) ? (e.s<e.t?-5:5) : 0;
+    const ring=id=>{ const s=spec.state&&spec.state[id]; return s==="from"||s==="to"; };
+    const sp=ring(e.s)?R+7:R+2, tp=ring(e.t)?R+8:R+3;
+    if(Math.abs(a.x-b.x)<1){
+      if(Math.abs(a.y-b.y)<1) continue;
+      const sg=b.y>a.y?1:-1; d=`M${a.x+off},${a.y+sg*sp} L${b.x+off},${b.y-sg*tp}`;
+    } else {
+      const sg=b.x>a.x?1:-1, sx=a.x+sg*sp, ex=b.x-sg*tp, dx=Math.max(26,Math.abs(ex-sx)*.45);
+      d=`M${sx},${a.y+off} C${sx+sg*dx},${a.y+off} ${ex-sg*dx},${b.y+off} ${ex},${b.y+off}`;
+    }
+    let color=P.edge, w=1.6, dash="", m="n", op=1;
+    if(e.state==="hl"){ color=P.hl; w=2.6; m="h"; }
+    if(e.state==="dim"){ op=.25; }
+    if(e.state==="gap"){ color=P.muted; dash="6 5"; m="g"; w=1.8; }
+    if(e.rel==="serving") dash = dash || "6 4";
+    if(e.rel==="access"){ color=e.state==="hl"?P.hl:P.access; dash="2 3"; m=e.state==="hl"?"h":"a"; w=1.4; }
+    p.push(`<path d="${d}" style="fill:none;stroke:${color};stroke-width:${w};opacity:${op}${dash?`;stroke-dasharray:${dash}`:""}" marker-end="url(#${idp}-${m})"/>`);
+    if(e.state==="gap"){ const mx=(a.x+b.x)/2, my=(a.y+b.y)/2-6; p.push(`<text x="${mx}" y="${my}" text-anchor="middle" style="fill:${P.muted};font-size:10px;font-style:italic">no modelled link</text>`); }
+  }
+  // nodes
+  for(const id of spec.nodes){
+    const n=D.node[id], q=pos.get(id); if(!q) continue;
+    const state=(spec.state&&spec.state[id])||"normal";
+    const ts=TYPE_STYLE[n.nodeTypeId]||TYPE_STYLE.function;
+    const op= state==="dim"?.22 : state==="ctx"?.38 : 1;
+    const attrs = spec.interactive ? ` class="pt" data-id="${esc(id)}" tabindex="0" role="button" aria-label="${esc(D.comp[n.componentId].title+": "+n.label)}"` : "";
+    p.push(`<g${attrs} style="opacity:${op}">`);
+    if(spec.interactive){
+      const tip=[D.comp[n.componentId].title+" · "+n.label, n.restApi?`${n.httpMethod} ${n.url}`:"", `Execution unit ${n.executionUnit}`, n.description||""].filter(Boolean).join("\n");
+      p.push(`<title>${esc(tip)}</title><circle class="hit" cx="${q.x}" cy="${q.y}" r="17" style="fill:transparent;stroke:none"/>`);
+    }
+    if(state==="from"||state==="to"){
+      const c= state==="from"?P.start:P.end;
+      p.push(`<circle cx="${q.x}" cy="${q.y}" r="${R+5}" style="fill:none;stroke:${c};stroke-width:3"/>`);
+      p.push(`<text x="${q.x}" y="${q.y-R-9}" text-anchor="middle" style="paint-order:stroke;stroke:${q.bg};stroke-width:3px;fill:${c};font-size:9.5px;font-weight:700;letter-spacing:.08em">${state==="from"?"START":"END"}</text>`);
+    }
+    const shapeStyle=st({fill:ts.fill, stroke:ts.stroke, "stroke-width":1.6});
+    if(n.nodeTypeId==="data") p.push(`<rect class="dot" x="${q.x-R+1}" y="${q.y-R+1}" width="${2*R-2}" height="${2*R-2}" rx="2" style="${shapeStyle}"/>`);
+    else p.push(`<circle class="dot" cx="${q.x}" cy="${q.y}" r="${R}" style="${shapeStyle}"/>`);
+    const bold = state==="hl"||state==="from"||state==="to";
+    wrap(n.label,20,3).forEach((ln,j)=>p.push(`<text x="${q.x}" y="${q.y+R+(state==="from"||state==="to"?17:13)+j*12}" text-anchor="middle" style="paint-order:stroke;stroke:${q.bg};stroke-width:3px;stroke-linejoin:round;fill:${P.text};font-size:10.5px;font-weight:${bold?700:500}">${esc(ln)}</text>`));
+    p.push(`</g>`);
+  }
+  p.push(`</svg>`);
+  return {svg:p.join(""), w:W, h:H};
+}
+
+function mainSpec(){
+  const {V, edges}=getView();
+  const ids=[...V].sort(cmpNodes);
+  const rows=D.comps.filter(c=>ids.some(id=>D.node[id].componentId===c.id)).map(c=>c.id);
+  const cols=[...new Set(ids.map(id=>D.node[id].executionUnit))].sort((a,b)=>a-b);
+  const state={}; let es=edges.map(e=>({...e, state:"normal"}));
+  const {from,to}=S.sel;
+  if(from&&to){
+    const H=pathNodes(from,to);
+    if(H.size){ for(const id of ids) state[id]=H.has(id)?"hl":"dim"; es=es.map(e=>({...e, state:(H.has(e.s)&&H.has(e.t))?"hl":"dim"})); }
+    else { for(const id of ids) state[id]="dim"; es=es.map(e=>({...e,state:"dim"})); es.push({s:from,t:to,state:"gap"}); }
+  }
+  if(from) state[from]="from";
+  if(to) state[to]="to";
+  return {rows, cols, nodes:ids, edges:es, state, pal:MAIN_PAL, idp:"m", interactive:true, aria:"Flow map of "+D.title};
+}
+function pointName(id){ const n=D.node[id]; return n? `${D.comp[n.componentId].title} · ${n.label}` : "(missing point)"; }
+function durationSpec(d, pal, idp){
+  const {V}=getView();
+  const H=pathNodes(d.from,d.to), has=H.size>0;
+  const Vx=new Set([...V, d.from, d.to].filter(id=>D.node[id]));
+  const Hv=new Set([...(has?H:[d.from,d.to])].filter(id=>Vx.has(id)));
+  const rowsSet=new Set([...Hv].map(id=>D.node[id].componentId));
+  const eus=[...Hv].map(id=>D.node[id].executionUnit); const lo=Math.min(...eus), hi=Math.max(...eus);
+  const ctx=[...Vx].filter(id=>!Hv.has(id) && rowsSet.has(D.node[id].componentId) && D.node[id].executionUnit>=lo && D.node[id].executionUnit<=hi);
+  const nodes=[...Hv, ...ctx].sort(cmpNodes), inS=new Set(nodes);
+  const all=collapse(Vx).filter(e=>inS.has(e.s)&&inS.has(e.t));
+  const edges=all.map(e=>({...e, state:(has&&Hv.has(e.s)&&Hv.has(e.t))?"hl":"dim"}));
+  if(!has) edges.push({s:d.from,t:d.to,state:"gap"});
+  const state={}; for(const id of nodes) state[id]=Hv.has(id)?"hl":"ctx";
+  state[d.from]="from"; state[d.to]="to";
+  const rows=D.comps.filter(c=>rowsSet.has(c.id)).map(c=>c.id);
+  const cols=[...new Set(nodes.map(id=>D.node[id].executionUnit))].sort((a,b)=>a-b);
+  const flow=orderFlow([...Hv], all.filter(e=>Hv.has(e.s)&&Hv.has(e.t)));
+  return {spec:{rows, cols, nodes, edges, state, pal, idp, font: pal===IMG_PAL?IMG_FONT:undefined,
+    title: d.title || "Untitled duration", subtitle: `${pointName(d.from)}  →  ${pointName(d.to)}`, aria:"Duration diagram: "+(d.title||"")}, flow, has};
+}
+
+/* ---------- state ---------- */
+const storeKey = () => "pdm:"+D.title+":"+D.version;
+function exampleDurations(){
+  const find=(comp,label)=>{ const n=D.nodes.find(n=>D.comp[n.componentId].title===comp && n.label===label && !n.isDuplicate); return n&&n.id; };
+  const out=[];
+  const a=find("COS","Poll Conversations in COS"), b=find("UPM Dynamics API","Lodge Claim");
+  if(a&&b) out.push({id:"ex1", example:true, from:a, to:b, title:"COS pick-up to UPM lodgement", desc:"Example record. Starts when the COS poller picks up a new VetHub conversation and ends when UPM receives the Lodge Claim call.", target:""});
+  const c=find("Dynamic Clapi","Claw Init"), e=find("UPM Dynamics API","Write");
+  if(c&&e) out.push({id:"ex2", example:true, from:c, to:e, title:"Clawdia medical assessment", desc:"Example record. From UPM asking Clawdia to assess the claim until the assessed claim is written back to UPM.", target:""});
+  return out;
+}
+function loadState(){
+  const saved=store.get(storeKey());
+  S = { mode:"services", durations:exampleDurations(), notes:{}, sel:{from:null,to:null}, editing:null };
+  if(saved){ S.mode=saved.mode||S.mode; S.durations=Array.isArray(saved.durations)?saved.durations:S.durations; S.notes=saved.notes||{}; }
+  viewCache=null;
+}
+function persist(){ store.set(storeKey(), {mode:S.mode, durations:S.durations, notes:S.notes}); }
+
+/* ---------- rendering ---------- */
+function renderHeader(){
+  $("diagram-title").textContent=D.title;
+  $("diagram-sub").textContent=`${D.version?"Version "+D.version+" · ":""}${D.comps.length} components · ${D.nodes.length} points · showing ${MODE_LABEL[S.mode].toLowerCase()}`;
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.mode===S.mode)));
+}
+function renderMain(){
+  const host=$("main-diagram"); const sx=host.scrollLeft, sy=host.scrollTop;
+  host.innerHTML=buildSVG(mainSpec()).svg; host.scrollLeft=sx; host.scrollTop=sy;
+}
+function fillSelect(sel, value){
+  const {V}=getView(); const ids=[...V].sort(cmpNodes);
+  const parts=[`<option value="">Choose a point…</option>`];
+  for(const c of D.comps){
+    const mine=ids.filter(id=>D.node[id].componentId===c.id); if(!mine.length) continue;
+    parts.push(`<optgroup label="${esc(c.title)}">`+mine.map(id=>`<option value="${esc(id)}">${esc(D.node[id].label)} · EU ${D.node[id].executionUnit}</option>`).join("")+`</optgroup>`);
+  }
+  sel.innerHTML=parts.join(""); sel.value=value||"";
+}
+function renderEditor(){
+  fillSelect($("sel-from"), S.sel.from); fillSelect($("sel-to"), S.sel.to);
+  const {from,to}=S.sel, note=$("path-note"), pv=$("preview");
+  note.hidden=true; pv.hidden=true; note.classList.remove("warn");
+  if(from&&to&&from!==to){
+    const res=durationSpec({from,to,title:$("f-title").value||"New duration"}, IMG_PAL, "pv");
+    pv.innerHTML=buildSVG(res.spec).svg; pv.hidden=false;
+    note.hidden=false;
+    if(res.has) note.textContent=`${res.flow.length} points on the flow from start to end.`;
+    else {
+      note.classList.add("warn");
+      note.textContent = pathNodes(to,from).size ? "The diagram only connects these points the other way round. Use ⇄ to swap them, or keep this as an unmodelled hand-off." : "The diagram has no connection between these points. You can still record it; the image marks the gap.";
+    }
+  } else if(from&&to&&from===to){ note.hidden=false; note.classList.add("warn"); note.textContent="Start and end are the same point. Pick a different end."; }
+  $("h-editor").textContent = S.editing ? "Edit duration" : "New duration";
+  $("add-btn").textContent = S.editing ? "Update duration" : "Add duration";
+  $("cancel-edit").hidden = !S.editing;
+}
+function renderRecords(){
+  const host=$("records");
+  $("rec-count").textContent = S.durations.length===1? "1 record" : `${S.durations.length} records`;
+  if(!S.durations.length){ host.innerHTML=`<div class="empty">No durations yet. Pick a start and an end point on the map, give it a title, and add it.</div>`; return; }
+  host.innerHTML=S.durations.map((d,i)=>{
+    const ok=D.node[d.from]&&D.node[d.to];
+    const img= ok ? buildSVG(durationSpec(d, IMG_PAL, "c"+i).spec).svg : `<p class="err" style="padding:10px">A point in this record is not in the loaded diagram.</p>`;
+    return `<article class="card${S.editing===d.id?" editing":""}" data-id="${esc(d.id)}">
+      <div class="card-head"><div class="t"><span class="num">#${String(i+1).padStart(2,"0")}</span><h3>${esc(d.title||"Untitled duration")} ${d.example?`<span class="chip ex">Example</span>`:""}</h3></div>
+      <div class="actions"><button type="button" data-act="edit">Edit</button><button type="button" class="danger" data-act="del">Delete</button></div></div>
+      <div class="ends"><span class="chip start">Start <span>${esc(pointName(d.from))}</span></span><span class="chip end">End <span>${esc(pointName(d.to))}</span></span></div>
+      ${d.desc?`<p class="desc">${esc(d.desc)}</p>`:""}${d.target?`<p class="muted" style="font-size:12.5px">Target / measured: ${esc(d.target)}</p>`:""}
+      <div class="preview">${img}</div></article>`;
+  }).join("");
+}
+function renderPoints(){
+  const {V}=getView(); const ids=[...V].sort(cmpNodes);
+  $("points").innerHTML=D.comps.map(c=>{
+    const mine=ids.filter(id=>D.node[id].componentId===c.id); if(!mine.length) return "";
+    return `<div class="comp"><div class="comp-title"><span class="swatch" style="background:${esc(c.color||"#888")}"></span><h3>${esc(c.title)}</h3><span class="muted" style="font-size:12px">${mine.length} point${mine.length>1?"s":""}</span></div>`+
+      mine.map(id=>{ const n=D.node[id]; const tid="note-"+id;
+        return `<div class="pnote"><label class="lbl" for="${esc(tid)}">${esc(n.label)} <span class="mono">${n.restApi?esc(n.httpMethod+" "+n.url)+" · ":""}EU ${n.executionUnit}</span></label>
+        <textarea id="${esc(tid)}" data-note="${esc(id)}" placeholder="How is this moment observed? e.g. log event, App Insights operation, table timestamp">${esc(S.notes[id]||"")}</textarea>
+        ${n.description?`<details><summary>Diagram notes</summary><p>${esc(n.description)}</p></details>`:""}</div>`; }).join("")+`</div>`;
+  }).join("");
+}
+function renderAll(){ renderHeader(); renderMain(); renderEditor(); renderRecords(); renderPoints(); }
+
+/* ---------- interactions ---------- */
+function pick(id){
+  const s=S.sel;
+  if(!s.from || (s.from&&s.to)){ s.from=id; s.to=null; }
+  else if(id===s.from){ s.from=null; }
+  else s.to=id;
+  renderMain(); renderEditor();
+}
+$("main-diagram").addEventListener("click", e=>{ const g=e.target.closest(".pt"); if(g) pick(g.dataset.id); });
+$("main-diagram").addEventListener("keydown", e=>{ if(e.key!=="Enter"&&e.key!==" ") return; const g=e.target.closest(".pt"); if(g){ e.preventDefault(); pick(g.dataset.id); requestAnimationFrame(()=>{ const el=$("main-diagram").querySelector(`.pt[data-id="${CSS.escape(g.dataset.id)}"]`); el&&el.focus(); }); } });
+$("sel-from").addEventListener("change", e=>{ S.sel.from=e.target.value||null; renderMain(); renderEditor(); });
+$("sel-to").addEventListener("change", e=>{ S.sel.to=e.target.value||null; renderMain(); renderEditor(); });
+$("swap").addEventListener("click", ()=>{ const {from,to}=S.sel; S.sel={from:to,to:from}; renderMain(); renderEditor(); });
+$("clear-btn").addEventListener("click", ()=>{ S.sel={from:null,to:null}; renderMain(); renderEditor(); });
+let titleT; $("f-title").addEventListener("input", ()=>{ clearTimeout(titleT); titleT=setTimeout(renderEditor,250); });
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click", ()=>{
+  S.mode=b.dataset.mode; viewCache=null; const {V}=getView();
+  if(S.sel.from&&!V.has(S.sel.from)) S.sel.from=null; if(S.sel.to&&!V.has(S.sel.to)) S.sel.to=null;
+  persist(); renderAll();
+}));
+function resetForm(){ S.editing=null; $("f-title").value=""; $("f-desc").value=""; $("f-target").value=""; $("form-err").hidden=true; S.sel={from:null,to:null}; }
+$("cancel-edit").addEventListener("click", ()=>{ resetForm(); renderAll(); });
+$("duration-form").addEventListener("submit", e=>{
+  e.preventDefault();
+  const {from,to}=S.sel, title=$("f-title").value.trim(), err=$("form-err");
+  const problem = !from||!to ? "Choose both a start and an end point." : from===to ? "Start and end must be different points." : !title ? "Give the duration a title." : "";
+  if(problem){ err.textContent=problem; err.hidden=false; return; }
+  const rec={from,to,title,desc:$("f-desc").value.trim(),target:$("f-target").value.trim()};
+  if(S.editing){ const i=S.durations.findIndex(d=>d.id===S.editing); if(i>=0) S.durations[i]={...S.durations[i],...rec,example:false}; toast("Duration updated"); }
+  else { S.durations.push({id:"d"+Date.now().toString(36), ...rec}); toast("Duration added"); }
+  persist(); resetForm(); renderAll();
+});
+$("records").addEventListener("click", e=>{
+  const btn=e.target.closest("button[data-act]"); if(!btn) return;
+  const id=btn.closest(".card").dataset.id, d=S.durations.find(x=>x.id===id); if(!d) return;
+  if(btn.dataset.act==="edit"){
+    S.editing=id; S.sel={from:d.from,to:d.to}; $("f-title").value=d.title||""; $("f-desc").value=d.desc||""; $("f-target").value=d.target||"";
+    const {V}=getView(); if(!V.has(d.from)||!V.has(d.to)){ S.mode="all"; viewCache=null; }
+    renderAll(); $("duration-form").scrollIntoView({behavior:"smooth",block:"start"}); $("f-title").focus({preventScroll:true});
+  } else if(btn.dataset.act==="del"){
+    if(btn.dataset.armed!=="1"){ btn.dataset.armed="1"; btn.textContent="Confirm delete"; setTimeout(()=>{ if(btn.isConnected){ btn.dataset.armed=""; btn.textContent="Delete"; } },3000); return; }
+    S.durations=S.durations.filter(x=>x.id!==id); if(S.editing===id) resetForm(); persist(); renderAll(); toast("Duration deleted");
+  }
+});
+$("points").addEventListener("input", e=>{ const t=e.target.closest("textarea[data-note]"); if(!t) return; const v=t.value; if(v.trim()) S.notes[t.dataset.note]=v; else delete S.notes[t.dataset.note]; clearTimeout(persist._t); persist._t=setTimeout(persist,400); });
+
+/* ---------- files ---------- */
+async function saveFile(filename, data){
+  try{
+    if(window.claude && typeof window.claude.use==="function"){
+      const dl=await window.claude.use("downloads");
+      if(dl){ try{ await dl.save({filename, data}); toast("Saved "+filename); } catch(err){ toast(err&&err.code==="declined" ? "Download cancelled" : "Could not save "+filename+(err&&err.message?": "+err.message:"")); } return; }
+    }
+  }catch(_){}
+  const blob = data instanceof Blob ? data : new Blob([data], {type:"application/octet-stream"});
+  const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+function readFile(input, cb){
+  const f=input.files&&input.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=()=>{ try{ cb(JSON.parse(r.result)); } catch(err){ toast("Could not read "+f.name+": "+err.message); } input.value=""; }; r.readAsText(f);
+}
+$("load-diagram").addEventListener("change", e=>readFile(e.target, raw=>{ D=prepare(raw); loadState(); resetForm(); lastMd=null; $("out").hidden=true; renderAll(); toast("Loaded "+D.title); }));
+$("save-session").addEventListener("click", ()=>{
+  const data=JSON.stringify({kind:"process-duration-session", diagram:{title:D.title, version:D.version}, mode:S.mode, durations:S.durations, notes:S.notes}, null, 2);
+  saveFile(slug(D.title)+"-durations-session.json", data);
+});
+$("open-session").addEventListener("change", e=>readFile(e.target, j=>{
+  if(j.kind!=="process-duration-session") throw new Error("not a saved session file");
+  S.mode=j.mode||S.mode; S.durations=j.durations||[]; S.notes=j.notes||{}; viewCache=null; resetForm(); persist(); renderAll();
+  const missing=S.durations.filter(d=>!D.node[d.from]||!D.node[d.to]).length;
+  toast(missing? `Session opened; ${missing} record(s) reference points not in this diagram` : "Session opened");
+}));
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "diagram";
+
+/* ---------- markdown ---------- */
+async function svgToPng(svg,w,h,scale=2){
+  const url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+  try{
+    const img=new Image(); await new Promise((res,rej)=>{ img.onload=res; img.onerror=()=>rej(new Error("image render failed")); img.src=url; });
+    const cv=document.createElement("canvas"); cv.width=Math.round(w*scale); cv.height=Math.round(h*scale);
+    const cx=cv.getContext("2d"); cx.fillStyle="#ffffff"; cx.fillRect(0,0,cv.width,cv.height); cx.drawImage(img,0,0,cv.width,cv.height);
+    return cv.toDataURL("image/png");
+  } finally { URL.revokeObjectURL(url); }
+}
+const mdCell = s => String(s??"").replace(/\|/g,"\\|").replace(/\r?\n/g," ");
+const mdInline = s => String(s??"").replace(/([*_`\[\]])/g,"\\$1");
+function pointMd(id, withApi=true){
+  const n=D.node[id]; if(!n) return "_(point not in diagram)_";
+  return `**${mdInline(D.comp[n.componentId].title)}** · ${mdInline(n.label)}${withApi&&n.restApi&&n.url?` — \`${n.httpMethod} ${n.url}\``:""}`;
+}
+let lastMd=null;
+async function buildMarkdown(){
+  const {V, edges}=getView();
+  const today=new Date().toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"});
+  const L=[];
+  L.push(`# Process durations — ${D.title}`,"");
+  L.push(`> Source diagram: **${mdInline(D.title)}**${D.version?` v${D.version}`:""} · View: ${MODE_LABEL[S.mode]} · Generated ${today}`,"");
+  const recs=S.durations.filter(d=>D.node[d.from]&&D.node[d.to]);
+  const images=[], flows=[];
+  for(let i=0;i<recs.length;i++){
+    const r=durationSpec(recs[i], IMG_PAL, "x"+i); const g=buildSVG(r.spec);
+    const png=await svgToPng(g.svg,g.w,g.h);
+    images.push({name:`images/duration-${String(i+1).padStart(2,"0")}.png`, data:png}); flows.push(r);
+  }
+  L.push("## Summary","");
+  if(recs.length){
+    L.push("| # | Duration | Start | End | Points | Target / measured |","|---|---|---|---|---|---|");
+    recs.forEach((d,i)=>L.push(`| ${i+1} | ${mdCell(d.title)} | ${mdCell(pointName(d.from))} | ${mdCell(pointName(d.to))} | ${flows[i].has?flows[i].flow.length:"no modelled path"} | ${mdCell(d.target)||"_TBD_"} |`));
+  } else L.push("_No durations recorded yet._");
+  L.push("","## Main flow","","All points in this view in execution order.","");
+  orderFlow([...V], edges).forEach((id,i)=>L.push(`${i+1}. ${pointMd(id)} _(EU ${D.node[id].executionUnit})_`));
+  L.push("","## Durations","");
+  recs.forEach((d,i)=>{
+    L.push(`### ${i+1}. ${d.title}`,"");
+    if(d.desc) L.push(d.desc,"");
+    L.push(`- **Start:** ${pointMd(d.from)}`, `- **End:** ${pointMd(d.to)}`, `- **Target / measured:** ${d.target?mdInline(d.target):"_TBD_"}`, "");
+    L.push(`![${mdInline(d.title)}](@@IMG${i}@@)`,"");
+    if(flows[i].has){ L.push("**Flow**",""); flows[i].flow.forEach((id,j)=>L.push(`${j+1}. ${pointMd(id)}`)); }
+    else L.push("> The diagram has no modelled connection between these points. The hand-off between them is not shown in the source diagram.");
+    L.push("");
+  });
+  if(!recs.length) L.push("_No durations recorded yet._","");
+  L.push("## Points by component","");
+  for(const c of D.comps){
+    const mine=[...V].filter(id=>D.node[id].componentId===c.id).sort(cmpNodes); if(!mine.length) continue;
+    L.push(`### ${c.title}`,""); if(c.description) L.push(`_${mdInline(c.description)}_`,"");
+    for(const id of mine){
+      const n=D.node[id];
+      L.push(`- **${mdInline(n.label)}**${n.restApi&&n.url?` · \`${n.httpMethod} ${n.url}\``:""} · EU ${n.executionUnit}`);
+      const note=(S.notes[id]||"").trim();
+      if(note) note.split(/\r?\n/).forEach((ln,j)=>L.push(j? `    ${ln}` : `    - ${ln}`)); else L.push("    - _TBD_");
+    }
+    L.push("");
+  }
+  const tpl=L.join("\n");
+  const fill = (fn) => tpl.replace(/@@IMG(\d+)@@/g,(_,k)=>fn(images[+k]));
+  return { inline: fill(im=>im.data), files: fill(im=>im.name), preview: fill(im=>im.data.slice(0,40)+"…"), images };
+}
+$("gen-form").addEventListener("submit", async e=>{
+  e.preventDefault(); const b=$("gen-btn"); b.disabled=true; b.textContent="Generating…";
+  try{ lastMd=await buildMarkdown(); $("md-preview").value=lastMd.preview; $("out").hidden=false; toast("Markdown ready"); }
+  catch(err){ toast("Could not generate: "+err.message); }
+  finally{ b.disabled=false; b.textContent="Generate markdown"; }
+});
+$("copy-md").addEventListener("click", ()=>{
+  if(!lastMd) return;
+  const done=()=>toast("Markdown copied");
+  try{ navigator.clipboard.writeText(lastMd.inline).then(done, fallbackCopy); } catch{ fallbackCopy(); }
+  function fallbackCopy(){ const t=$("md-preview"); t.value=lastMd.inline; t.select(); try{ document.execCommand("copy"); done(); }catch{ toast("Select the text and copy it manually"); } setTimeout(()=>{ t.value=lastMd.preview; },1500); }
+});
+$("dl-md").addEventListener("click", ()=>{ if(lastMd) saveFile(slug(D.title)+"-durations.md", lastMd.inline); });
+$("dl-zip").addEventListener("click", async ()=>{
+  if(!lastMd) return;
+  if(typeof JSZip==="undefined"){ toast("The zip library did not load; use Download .md instead"); return; }
+  const z=new JSZip(); z.file(slug(D.title)+"-durations.md", lastMd.files);
+  for(const im of lastMd.images) z.file(im.name, im.data.split(",")[1], {base64:true});
+  const blob=await z.generateAsync({type:"blob"}); saveFile(slug(D.title)+"-durations.zip", blob);
+});
+
+/* ---------- boot ---------- */
+try{ D=prepare(JSON.parse($("diagram-data").textContent)); loadState(); renderAll(); }
+catch(err){ $("main-diagram").innerHTML=`<p class="err" style="padding:16px">Could not read the embedded diagram: ${esc(err.message)}. Use “Load diagram JSON”.</p>`; }
+})();
+</script>
+</body></html>
