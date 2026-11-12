@@ -76,3 +76,29 @@ Deployed with Terraform and GitHub Actions (`lz-au-*`, `au-alz-*`).
 - **Trupanion data reads** — the ReadOnly DataService reads UPM AU; how TPN claim data is loaded is not documented.
 - **App Insights** still points at the legacy structure.
 - **Committed credentials** in one Confluence page (CLAW auth FAQ) — rotate.
+
+## 7. Confluence pages
+
+Pages found on Confluence on 28 Oct 2026. The *Technical Assessments* (Mar 2026) are per-repo code reviews; they predate 2026_R4.
+
+| Page | Space | What it adds |
+|---|---|---|
+| [StraightThroughProcessFunctions – Technical Assessment](https://petsure.atlassian.net/wiki/spaces/P3/pages/1728839696) | P3 | .NET 8 isolated Functions; anonymous functions; Bicep IaC |
+| [StraightThroughProcessLogicApps – Technical Assessment](https://petsure.atlassian.net/wiki/spaces/P3/pages/1728905241) | P3 | Logic Apps Standard workflows; auth per connection |
+| [DataService.UPM – Technical Assessment](https://petsure.atlassian.net/wiki/spaces/P3/pages/1735327745) | P3 | ReadOnly DataService: .NET 8 on **Linux** App Service; Basic auth |
+| [DataService.UPM.SQLScript.STP – Technical Assessment](https://petsure.atlassian.net/wiki/spaces/P3/pages/1737588822) | P3 | SQL scripts |
+| [CLAW Infrastructure](https://petsure.atlassian.net/wiki/spaces/P3/pages/873234445) | P3 | Resources, network settings and role assignments |
+| [CLAW Project Infrastructure Deployment Process](https://petsure.atlassian.net/wiki/spaces/PET/pages/1069940906) | PET | Deployment process |
+| [CLAW Architecture / Infrastructure Diagram](https://petsure.atlassian.net/wiki/spaces/P3/pages/964559055) | P3 | Diagram |
+| [CLAW Application Architecture](https://petsure.atlassian.net/wiki/spaces/P3/pages/185499672) | P3 | Application architecture (2023) |
+| [STP Function App Infrastructure Setup](https://petsure.atlassian.net/wiki/spaces/P3/pages/991199294) | P3 | Function App setup |
+| [STP Logic App Infrastructure Setup](https://petsure.atlassian.net/wiki/spaces/P3/pages/991887369) | P3 | Logic App setup |
+| [UPM+ RO DataService API Infrastructure Setup](https://petsure.atlassian.net/wiki/spaces/P3/pages/991232056) | P3 | ReadOnly DataService setup |
+| [CLAW Redis Cache Infrastructure Setup](https://petsure.atlassian.net/wiki/spaces/P3/pages/991395931) | P3 | Redis |
+| [CLAW Key Vault Infrastructure Setup](https://petsure.atlassian.net/wiki/spaces/P3/pages/991133744) | P3 | Key Vault |
+| [STP and related infrastructure authentication](https://petsure.atlassian.net/wiki/spaces/P3/pages/269451680) | P3 | Auth between the STP components |
+| [CLAW / DynamicCLAPI / DynamicAPI / UPM+RO API Flow and Authentication Mechanism](https://petsure.atlassian.net/wiki/spaces/P3/pages/519012357) | P3 | Flow and auth |
+| [Terraform + Landing zone – CLAW Logic App and Function App (AUS) – Test Result](https://petsure.atlassian.net/wiki/spaces/P3/pages/1028816935) | P3 | Landing-zone deployment test |
+| [UPM+ RO API Documentation](https://petsure.atlassian.net/wiki/spaces/P3/pages/595296393) | P3 | ReadOnly DataService API |
+| [90% STP Architecture Vision — Business Motivation Model](https://petsure.atlassian.net/wiki/spaces/PET/pages/2178613297) | PET | Target vision |
+| [GOTech Deployments Summary](https://petsure.atlassian.net/wiki/spaces/P3/pages/1736048734) | P3 | Deployment targets; .NET 8 → .NET 10 upgrades of the functions and DataService.UPM in 2026_R5 |

@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1030" width="1600" height="1030" font-family="Segoe UI, Inter, Arial, sans-serif" xmlns:c2pa="http://c2pa.org/manifest">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2D3748"/></marker></defs>
+<rect width="1600" height="1030" fill="#FFFFFF"/>
+<text x="30" y="42" font-size="24" font-weight="700" fill="#1A202C" text-anchor="start">AI CAsH — target application architecture (end of Tier 3)</text>
+<text x="30" y="68" font-size="14" font-weight="400" fill="#4A5568" text-anchor="start">Clawdia STP evolved into an AI harness for claim medical assessment · headless, AI-first, people only where they add value</text>
+<rect x="215" y="95" width="255" height="595" rx="10" fill="#FAFAF7" stroke="#CBD5E0" stroke-width="1.2"/>
+<text x="229" y="117" font-size="14" font-weight="600" fill="#4A5568" text-anchor="start">Intake — event-driven</text>
+<rect x="495" y="95" width="1080" height="235" rx="10" fill="#FAFAF7" stroke="#CBD5E0" stroke-width="1.2"/>
+<text x="509" y="117" font-size="14" font-weight="600" fill="#4A5568" text-anchor="start">Claim path — orchestration and system of record</text>
+<rect x="495" y="355" width="1080" height="305" rx="10" fill="#FAFAF7" stroke="#CBD5E0" stroke-width="1.2"/>
+<text x="509" y="377" font-size="14" font-weight="600" fill="#4A5568" text-anchor="start">Assessment path — AI CAsH</text>
+<rect x="495" y="685" width="1080" height="125" rx="10" fill="#FAFAF7" stroke="#CBD5E0" stroke-width="1.2"/>
+<text x="509" y="707" font-size="14" font-weight="600" fill="#4A5568" text-anchor="start">People — targeted intervention</text>
+<rect x="30" y="250" width="165" height="76" rx="8" fill="#FFFFFF" stroke="#718096" stroke-width="1.6"/>
+<text x="112.5" y="283.9" font-size="14" font-weight="600" fill="#2D3748" text-anchor="middle">Vet practice</text>
+<text x="112.5" y="301.9" font-size="13" font-weight="400" fill="#2D3748" text-anchor="middle">VPMS · GapOnly SDK</text>
+<rect x="237" y="130" width="211" height="58" rx="8" fill="#FFFFFF" stroke="#718096" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="342.5" y="155.05" font-size="13" font-weight="600" fill="#4A5568" text-anchor="middle">Service provider master</text>
+<text x="342.5" y="172.05" font-size="12" font-weight="400" fill="#4A5568" text-anchor="middle" font-style="italic">candidate · TBC</text>
+<rect x="237" y="250" width="211" height="76" rx="8" fill="#FCE6CC" stroke="#C05621" stroke-width="1.6"/>
+<text x="342.5" y="274.9" font-size="14" font-weight="600" fill="#5A2410" text-anchor="middle">VetHub</text>
+<text x="342.5" y="292.9" font-size="13" font-weight="400" fill="#5A2410" text-anchor="middle">routing context · attachments</text>
+<text x="342.5" y="310.9" font-size="13" font-weight="400" fill="#5A2410" text-anchor="middle">re-hosted off VMs</text>
+<rect x="237" y="430" width="211" height="100" rx="8" fill="#DCF2E3" stroke="#2F855A" stroke-width="1.6"/>
+<text x="342.5" y="466.9" font-size="14" font-weight="600" fill="#173B2A" text-anchor="middle">Event platform</text>
+<text x="342.5" y="484.9" font-size="13" font-weight="400" fill="#173B2A" text-anchor="middle">business events, no polling</text>
+<text x="342.5" y="502.9" font-size="13" font-weight="400" fill="#173B2A" text-anchor="middle" font-style="italic">Service Bus / Event Grid TBC</text>
+<rect x="520" y="160" width="200" height="96" rx="8" fill="#FCE6CC" stroke="#C05621" stroke-width="1.6"/>
+<text x="620.0" y="185.9" font-size="14" font-weight="600" fill="#5A2410" text-anchor="middle">COS</text>
+<text x="620.0" y="203.9" font-size="13" font-weight="400" fill="#5A2410" text-anchor="middle">COS.API on App Service</text>
+<text x="620.0" y="221.9" font-size="13" font-weight="400" fill="#5A2410" text-anchor="middle">sagas re-hosted</text>
+<text x="620.0" y="239.9" font-size="13" font-weight="400" fill="#5A2410" text-anchor="middle">routing-context resolver</text>
+<rect x="775" y="130" width="160" height="46" rx="8" fill="#E8EEF8" stroke="#2B4C7E" stroke-width="1.6"/>
+<text x="855.0" y="149.05" font-size="13" font-weight="600" fill="#13233D" text-anchor="middle">DAPI</text>
+<text x="855.0" y="166.05" font-size="12" font-weight="400" fill="#13233D" text-anchor="middle">submit · finish</text>
+<rect x="775" y="215" width="160" height="46" rx="8" fill="#E8EEF8" stroke="#2B4C7E" stroke-width="1.6"/>
+<text x="855.0" y="234.05" font-size="13" font-weight="600" fill="#13233D" text-anchor="middle">UPM Dynamics API</text>
+<text x="855.0" y="251.05" font-size="12" font-weight="400" fill="#13233D" text-anchor="middle">lodge · write</text>
+<rect x="990" y="200" width="170" height="76" rx="8" fill="#E8EEF8" stroke="#2B4C7E" stroke-width="1.6"/>
+<text x="1075.0" y="233.9" font-size="14" font-weight="600" fill="#13233D" text-anchor="middle">UPM+</text>
+<text x="1075.0" y="251.9" font-size="13" font-weight="400" fill="#13233D" text-anchor="middle">AU · Trupanion · NZ</text>
+<rect x="1215" y="200" width="210" height="76" rx="8" fill="#FCE6CC" stroke="#C05621" stroke-width="1.6"/>
+<text x="1320.0" y="224.9" font-size="14" font-weight="600" fill="#5A2410" text-anchor="middle">Dynamic CLAPI</text>
+<text x="1320.0" y="242.9" font-size="13" font-weight="400" fill="#5A2410" text-anchor="middle">release result · write</text>
+<text x="1320.0" y="260.9" font-size="13" font-weight="400" fill="#5A2410" text-anchor="middle">(lodge removed)</text>
+<rect x="520" y="395" width="560" height="240" rx="10" fill="#FCE6CC" stroke="#C05621" stroke-width="1.8"/>
+<text x="540" y="422" font-size="16" font-weight="700" fill="#5A2410" text-anchor="start">Clawdia STP = the harness</text>
+<text x="540" y="443" font-size="12.5" font-weight="400" fill="#5A2410" text-anchor="start">Logic Apps + Functions · runs the assessment path · thresholds · pause / resume</text>
+<rect x="540" y="462" width="170" height="56" rx="6" fill="#FCE6CC" stroke="#C05621" stroke-width="1.6"/>
+<text x="625.0" y="486.05" font-size="13" font-weight="600" fill="#5A2410" text-anchor="middle">Claim context</text>
+<text x="625.0" y="503.05" font-size="12" font-weight="400" fill="#5A2410" text-anchor="middle">enriched · provenance</text>
+<rect x="715" y="462" width="170" height="56" rx="6" fill="#DCF2E3" stroke="#2F855A" stroke-width="1.6"/>
+<text x="800.0" y="486.05" font-size="13" font-weight="600" fill="#173B2A" text-anchor="middle">Question catalogue</text>
+<text x="800.0" y="503.05" font-size="12" font-weight="400" fill="#173B2A" text-anchor="middle">per diagnosis family</text>
+<rect x="890" y="462" width="172" height="56" rx="6" fill="#DCF2E3" stroke="#2F855A" stroke-width="1.6"/>
+<text x="976.0" y="486.05" font-size="13" font-weight="600" fill="#173B2A" text-anchor="middle">Answerers</text>
+<text x="976.0" y="503.05" font-size="12" font-weight="400" fill="#173B2A" text-anchor="middle">SQL · AI agent (LLM TBC)</text>
+<rect x="540" y="527" width="170" height="56" rx="6" fill="#DCF2E3" stroke="#2F855A" stroke-width="1.6"/>
+<text x="625.0" y="551.05" font-size="13" font-weight="600" fill="#173B2A" text-anchor="middle">Decision trace</text>
+<text x="625.0" y="568.05" font-size="12" font-weight="400" fill="#173B2A" text-anchor="middle">evidence · versions</text>
+<rect x="715" y="527" width="170" height="56" rx="6" fill="#DCF2E3" stroke="#2F855A" stroke-width="1.6"/>
+<text x="800.0" y="551.05" font-size="13" font-weight="600" fill="#173B2A" text-anchor="middle">Workflow correlation</text>
+<text x="800.0" y="568.05" font-size="12" font-weight="400" fill="#173B2A" text-anchor="middle">conversation → workflow</text>
+<rect x="890" y="527" width="172" height="56" rx="6" fill="#E8EEF8" stroke="#2B4C7E" stroke-width="1.6"/>
+<text x="976.0" y="551.05" font-size="13" font-weight="600" fill="#13233D" text-anchor="middle">Easy Cohort</text>
+<text x="976.0" y="568.05" font-size="12" font-weight="400" fill="#13233D" text-anchor="middle">business rules</text>
+<text x="800" y="612" font-size="12.5" font-weight="400" fill="#5A2410" text-anchor="middle" font-style="italic">AI never declines a claim on its own — declines go to UPM’s manual path</text>
+<rect x="1110" y="380" width="445" height="265" rx="10" fill="#FFFFFF" stroke="#A0AEC0" stroke-width="1.2"/>
+<text x="1124" y="402" font-size="14" font-weight="600" fill="#4A5568" text-anchor="start">ML environment (Azure ML)</text>
+<rect x="1130" y="470" width="140" height="70" rx="8" fill="#FCE6CC" stroke="#C05621" stroke-width="1.6"/>
+<text x="1200.0" y="492.55" font-size="13" font-weight="600" fill="#5A2410" text-anchor="middle">ML router</text>
+<text x="1200.0" y="509.55" font-size="12" font-weight="400" fill="#5A2410" text-anchor="middle">ensemble · routes</text>
+<text x="1200.0" y="526.55" font-size="12" font-weight="400" fill="#5A2410" text-anchor="middle">per question</text>
+<rect x="1295" y="410" width="240" height="66" rx="8" fill="#DCF2E3" stroke="#2F855A" stroke-width="1.6"/>
+<text x="1415.0" y="430.55" font-size="13" font-weight="600" fill="#173B2A" text-anchor="middle">Enrichment</text>
+<text x="1415.0" y="447.55" font-size="12" font-weight="400" fill="#173B2A" text-anchor="middle">OCR → attachment classifier</text>
+<text x="1415.0" y="464.55" font-size="12" font-weight="400" fill="#173B2A" text-anchor="middle">clinical information extraction</text>
+<rect x="1295" y="486" width="240" height="66" rx="8" fill="#FCE6CC" stroke="#C05621" stroke-width="1.6"/>
+<text x="1415.0" y="506.55" font-size="13" font-weight="600" fill="#5A2410" text-anchor="middle">Prediction</text>
+<text x="1415.0" y="523.55" font-size="12" font-weight="400" fill="#5A2410" text-anchor="middle">GP model · case linking</text>
+<text x="1415.0" y="540.55" font-size="12" font-weight="400" fill="#5A2410" text-anchor="middle">specialist models (new)</text>
+<rect x="1295" y="562" width="240" height="66" rx="8" fill="#DCF2E3" stroke="#2F855A" stroke-width="1.6"/>
+<text x="1415.0" y="582.55" font-size="13" font-weight="600" fill="#173B2A" text-anchor="middle">Question answering</text>
+<text x="1415.0" y="599.55" font-size="12" font-weight="400" fill="#173B2A" text-anchor="middle">diagnosis from Q&amp;A</text>
+<text x="1415.0" y="616.55" font-size="12" font-weight="400" fill="#173B2A" text-anchor="middle">labelled answers from the bays</text>
+<path d="M1270 505 H1283 V443 H1295" fill="none" stroke="#718096" stroke-width="1.6"/>
+<path d="M1270 505 H1283 V519 H1295" fill="none" stroke="#718096" stroke-width="1.6"/>
+<path d="M1270 505 H1283 V595 H1295" fill="none" stroke="#718096" stroke-width="1.6"/>
+<rect x="675" y="715" width="170" height="68" rx="8" fill="#DCF2E3" stroke="#2F855A" stroke-width="1.6"/>
+<text x="760" y="745" font-size="14" font-weight="600" fill="#173B2A" text-anchor="middle">Quick fix tasks</text>
+<text x="760" y="764" font-size="12.5" font-weight="400" fill="#173B2A" text-anchor="middle">assignment · SLA · trace</text>
+<rect x="900" y="712" width="400" height="74" rx="8" fill="#DCF2E3" stroke="#2F855A" stroke-width="1.6"/>
+<text x="1100.0" y="735.9" font-size="14" font-weight="600" fill="#173B2A" text-anchor="middle">Quick fix bays on the Claim Visualiser</text>
+<text x="1100.0" y="753.9" font-size="13" font-weight="400" fill="#173B2A" text-anchor="middle">answers bay · AI-assisted manual medical assessment</text>
+<text x="1100.0" y="771.9" font-size="13" font-weight="400" fill="#173B2A" text-anchor="middle">replaces CATCH work queues</text>
+<path d="M195 288 H237" fill="none" stroke="#2D3748" stroke-width="2.4" marker-end="url(#a)"/>
+<circle cx="216" cy="268" r="12" fill="#2D3748"/>
+<text x="216" y="273" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
+<path d="M342 188 V250" fill="none" stroke="#718096" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<path d="M342 326 V430" fill="none" stroke="#2D3748" stroke-width="2.4" marker-end="url(#a)"/>
+<text x="350" y="384" font-size="12" font-weight="400" fill="#4A5568" text-anchor="start">events</text>
+<path d="M448 455 H482 V208 H520" fill="none" stroke="#2D3748" stroke-width="2.4" marker-end="url(#a)"/>
+<circle cx="482" cy="330" r="12" fill="#2D3748"/>
+<text x="482" y="335" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
+<path d="M448 505 H520" fill="none" stroke="#2D3748" stroke-width="2.4" marker-end="url(#a)"/>
+<circle cx="484" cy="505" r="12" fill="#2D3748"/>
+<text x="484" y="510" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
+<path d="M720 190 H748 V153 H775" fill="none" stroke="#718096" stroke-width="1.6" marker-end="url(#a)"/>
+<path d="M720 226 H748 V238 H775" fill="none" stroke="#718096" stroke-width="1.6" marker-end="url(#a)"/>
+<path d="M935 238 H990" fill="none" stroke="#718096" stroke-width="1.6" marker-end="url(#a)"/>
+<path d="M1160 238 H1215" fill="none" stroke="#718096" stroke-width="1.6" marker-end="url(#a)"/>
+<circle cx="1187" cy="218" r="12" fill="#2D3748"/>
+<text x="1187" y="223" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">6</text>
+<path d="M1040 395 V340 H1320 V276" fill="none" stroke="#2D3748" stroke-width="2.4" marker-end="url(#a)" marker-start="url(#a)"/>
+<text x="1180" y="334" font-size="12" font-weight="400" fill="#4A5568" text-anchor="middle">release when UPM asks · write assessment</text>
+<path d="M1080 505 H1130" fill="none" stroke="#2D3748" stroke-width="2.4" marker-end="url(#a)" marker-start="url(#a)"/>
+<circle cx="1105" cy="486" r="12" fill="#2D3748"/>
+<text x="1105" y="491" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
+<path d="M760 635 V715" fill="none" stroke="#2D3748" stroke-width="2.4" marker-end="url(#a)"/>
+<circle cx="760" cy="668" r="12" fill="#2D3748"/>
+<text x="760" y="673" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">4</text>
+<path d="M845 749 H900" fill="none" stroke="#718096" stroke-width="1.6" marker-end="url(#a)"/>
+<path d="M1040 712 V635" fill="none" stroke="#2D3748" stroke-width="2.4" marker-end="url(#a)"/>
+<circle cx="1040" cy="668" r="12" fill="#2D3748"/>
+<text x="1040" y="673" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">5</text>
+<rect x="30" y="835" width="1050" height="170" rx="10" fill="#FFFFFF" stroke="#CBD5E0" stroke-width="1.2"/>
+<text x="46" y="858" font-size="14" font-weight="700" fill="#2D3748" text-anchor="start">How a claim flows</text>
+<circle cx="56" cy="888" r="12" fill="#2D3748"/>
+<text x="56" y="893" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
+<text x="76" y="893" font-size="12.5" font-weight="400" fill="#2D3748" text-anchor="start">Vet submits; VetHub publishes business events — no polling.</text>
+<circle cx="56" cy="928" r="12" fill="#2D3748"/>
+<text x="56" y="933" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
+<text x="76" y="933" font-size="12.5" font-weight="400" fill="#2D3748" text-anchor="start">Events start the claim in COS and the assessment in parallel.</text>
+<circle cx="56" cy="968" r="12" fill="#2D3748"/>
+<text x="56" y="973" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
+<text x="76" y="973" font-size="12.5" font-weight="400" fill="#2D3748" text-anchor="start">The harness enriches the claim context and asks the ML ensemble.</text>
+<circle cx="576" cy="888" r="12" fill="#2D3748"/>
+<text x="576" y="893" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">4</text>
+<text x="596" y="885" font-size="12.5" font-weight="400" fill="#2D3748" text-anchor="start">Not confident: SQL, ML and AI agent answer the clinical questions; only</text>
+<text x="596" y="901" font-size="12.5" font-weight="400" fill="#2D3748" text-anchor="start">what needs a person becomes a quick fix task.</text>
+<circle cx="576" cy="928" r="12" fill="#2D3748"/>
+<text x="576" y="933" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">5</text>
+<text x="596" y="925" font-size="12.5" font-weight="400" fill="#2D3748" text-anchor="start">The assessor confirms or answers in a bay; automation resumes and predicts</text>
+<text x="596" y="941" font-size="12.5" font-weight="400" fill="#2D3748" text-anchor="start">the diagnosis — still low → AI-assisted manual assessment.</text>
+<circle cx="576" cy="968" r="12" fill="#2D3748"/>
+<text x="576" y="973" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">6</text>
+<text x="596" y="973" font-size="12.5" font-weight="400" fill="#2D3748" text-anchor="start">UPM asks for the result; the harness writes it through Dynamic CLAPI.</text>
+<rect x="1100" y="835" width="475" height="56" rx="10" fill="#FFFFFF" stroke="#CBD5E0" stroke-width="1.2"/>
+<text x="1116" y="868" font-size="13" font-weight="700" fill="#2D3748" text-anchor="start">Legend</text>
+<rect x="1180" y="849" width="86" height="28" rx="5" fill="#DCF2E3" stroke="#2F855A" stroke-width="1.6"/>
+<text x="1223.0" y="867.375" font-size="12.5" font-weight="600" fill="#173B2A" text-anchor="middle">New</text>
+<rect x="1277" y="849" width="86" height="28" rx="5" fill="#FCE6CC" stroke="#C05621" stroke-width="1.6"/>
+<text x="1320.0" y="867.375" font-size="12.5" font-weight="600" fill="#5A2410" text-anchor="middle">Evolved</text>
+<rect x="1374" y="849" width="86" height="28" rx="5" fill="#E8EEF8" stroke="#2B4C7E" stroke-width="1.6"/>
+<text x="1417.0" y="867.375" font-size="12.5" font-weight="600" fill="#13233D" text-anchor="middle">Unchanged</text>
+<rect x="1471" y="849" width="86" height="28" rx="5" fill="#FFFFFF" stroke="#718096" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="1514.0" y="867.375" font-size="12.5" font-weight="600" fill="#4A5568" text-anchor="middle">TBC</text>
+<rect x="1100" y="901" width="475" height="104" rx="10" fill="#F7F7F7" stroke="#C53030" stroke-width="1.4" stroke-dasharray="6 4"/>
+<text x="1116" y="927" font-size="13" font-weight="700" fill="#8B2525" text-anchor="start">Retired by Tiers 1–3</text>
+<text x="1116" y="952" font-size="12" font-weight="400" fill="#8B2525" text-anchor="start">CLAPI · VetHub → COS poller · Dynamic CLAPI lodge · CATCH / CATCH2</text>
+<text x="1116" y="970" font-size="12" font-weight="400" fill="#8B2525" text-anchor="start">MSMQ logging · COS and VetHub Windows services · COS.API IIS sites</text>
+<text x="1116" y="988" font-size="12" font-weight="400" fill="#8B2525" text-anchor="start">Go Tech VMs on the claim path · manual service-provider dual insert</text>
+<metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYToyOTQwZTZmMS0zMjE2LTQ5NWYtODE1OC1iZmY1MDBkZjkwMzUAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaLNaWixi1XdKFWouKjdtPukAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo0YWQ4YTdmMS0xMjA0LTQwOWItODQ5Ny0wZWI4NmJkYmNjNjdscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoTq8st6UFpa+YfdFzqROYYwAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggJaCinQbOiqwFFv9bJSh1SFoo5reWiuWUS82JFnYmLe+kZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaCcxJQ9qSpkmJZdzfZzSafcAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIDi+t1v8uCJ8wqLl84TQ9SdiFPB4YPb3xMgnHBi3983GZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GUibZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjI5NDBlNmYxLTMyMTYtNDk1Zi04MTU4LWJmZjUwMGRmOTAzNS9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjZlOTIzYTQxLTQ4ZjYtNDg0Ni05MzNkLWY3ZDk5Y2ZiNmRlOXJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCAloKKdBs6KrAUW/1slKHVIWijmt5aK5ZRLzYkWdiYt76JjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggsww1awIip0YEaAFdjM+LrQUqrbSLAXtVOqaRr0j3ohSiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggOH5XlQYAaC5zvZxCIuRGfDZxPakg37GUECeTf44x0ud0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQN3EWq5907lH8bIsCTLI54H8B5yc7fEhUZFVw5xRqzNJER8bpeDK1BJFtPQS7P5L0se+WmLUoOnK34tuShXh86o=</c2pa:manifest></metadata></svg>

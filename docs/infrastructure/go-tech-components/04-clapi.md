@@ -84,3 +84,22 @@ OpsLevel labels CLAPI `azure-app-service`, but the workflows deploy to IIS on VM
 - **OpsLevel vs reality** — App Service vs IIS on VMs; correct OpsLevel.
 - **Committed credentials** (DAPI / Boomi) in `appsettings.*.json` — rotate.
 - **Other consumers** of `POST api/Claims` / `PUT api/Claims/FinishSubmitClaim` outside the COS and VetHub repos are unknown (Earlier Birds OQ-10).
+
+## 7. Confluence pages
+
+Pages found on Confluence on 28 Oct 2026. The *Technical Assessments* (Mar 2026) are per-repo code reviews; they predate 2026_R4.
+
+| Page | Space | What it adds |
+|---|---|---|
+| [ClaimsAPI – Technical Assessment](https://petsure.atlassian.net/wiki/spaces/P3/pages/1711505510) | P3 | Web API 2 on IIS VMs; OAuth ROPC; MSMQ + SumoLogic logging; security risks |
+| [CLAPI & DAPI](https://petsure.atlassian.net/wiki/spaces/P3/pages/15309074) | P3 | Parent page for the CLAPI ↔ DAPI integration |
+| [CLAPI Authentication](https://petsure.atlassian.net/wiki/spaces/P3/pages/15318444) | P3 | Parent page for CLAPI authentication stories |
+| [6. Clapi Submission to UPM/VetPartners/Trupanion](https://petsure.atlassian.net/wiki/spaces/P3/pages/1805058096) | P3 | Routing per insurer |
+| [5. (Service bus Queue) Cos.Service.Saga → Clapi (Submit)](https://petsure.atlassian.net/wiki/spaces/P3/pages/1805877267) | P3 | Submission flow from COS |
+| [TPN: CLAPI API Endpoints Routing](https://petsure.atlassian.net/wiki/spaces/P3/pages/1406500914) | P3 | Trupanion routing |
+| [TPN: CLAPI Cache – Test Result](https://petsure.atlassian.net/wiki/spaces/P3/pages/1541603335) | P3 | Token cache |
+| [AUS/TPN CLAPI Load Testing](https://petsure.atlassian.net/wiki/spaces/P3/pages/1817772080) | P3 | Load test results |
+| [2. CATCH, CATCH API, COS Services, COS API, CLAPI](https://petsure.atlassian.net/wiki/spaces/P3/pages/15308639) | P3 | Component overview |
+| [Estimates for IIS Upgrades](https://petsure.atlassian.net/wiki/spaces/P3/pages/1629913104) | P3 | CLAPI .NET 10 upgrade estimate: 18–22 days; target App Service |
+| [GOTech Deployments Summary](https://petsure.atlassian.net/wiki/spaces/P3/pages/1736048734) | P3 | Deployment targets (AU, NZ, VP web servers); candidate for VM removal and consolidation of instances |
+| [LogManager.Handler & Log4Net Configuration Audit](https://petsure.atlassian.net/wiki/spaces/P3/pages/2164260872) | P3 | MSMQ logging on the CLAPI servers |

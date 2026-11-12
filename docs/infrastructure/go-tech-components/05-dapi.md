@@ -74,3 +74,25 @@ Deployed by GitHub Actions through the self-hosted runner `petsure-azure-windows
 - **AU RO host** — `PS-PRD-AZS-CSP1` (10.3.0.92, Oct 2026) used; a 2025 page names `AZ-SY-P-CSPRO01` (10.3.0.55).
 - **RO DAPI callers** are not documented.
 - End-of-life in OpsLevel; Earlier Birds proposes COS calling DAPI directly (DAPI-E-01).
+
+## 7. Confluence pages
+
+Pages found on Confluence on 28 Oct 2026. The *Technical Assessments* (Mar 2026) are per-repo code reviews; they predate 2026_R4.
+
+| Page | Space | What it adds |
+|---|---|---|
+| [Digital API (DAPI)](https://petsure.atlassian.net/wiki/spaces/DIGITAL/pages/44863185) | DIGITAL | Parent page |
+| [Upgrading DAPI .Net Framework 4.8](https://petsure.atlassian.net/wiki/spaces/DIGITAL/pages/913080393) | DIGITAL | Package upgrades and the 4.5.1 `httpRuntime` issue |
+| [Manual Digital API (DAPI) Deployment](https://petsure.atlassian.net/wiki/spaces/CSP/pages/369688803) | CSP | Manual IIS deployment of DAPI and DAPI RO |
+| [DAPI Endpoints](https://petsure.atlassian.net/wiki/spaces/CSP/pages/722501768) | CSP | Endpoint list |
+| [Usage of DAPI in CSP 2.5 Codebase](https://petsure.atlassian.net/wiki/spaces/CSP/pages/718766118) | CSP | Callers in CSP |
+| [DAPI](https://petsure.atlassian.net/wiki/spaces/CS/pages/488374318) | CS | Core Systems view |
+| [CSP Always On – Analysis of DAPI Write Operations](https://petsure.atlassian.net/wiki/spaces/DIGITAL/pages/1074364490) | DIGITAL | Write endpoints still used by CSP |
+| [CSP Always On – Analysis of Claims APIs to be Migrated from RO DAPI](https://petsure.atlassian.net/wiki/spaces/DIGITAL/pages/1032355843) | DIGITAL | RO DAPI: .NET 4.8, EF to the UPM RO DB; claims APIs to move |
+| [CSP Always On (CSP RO Decommission) – DB indexes used by RO DAPI](https://petsure.atlassian.net/wiki/spaces/DIGITAL/pages/1081409538) | DIGITAL | RO decommission analysis |
+| [CSP-2207: Always On – Change OCR and RO DAPI connection strings](https://petsure.atlassian.net/wiki/spaces/CSPDIGITAL/pages/1273724950) | CSPDIGITAL | RO connection-string change |
+| [Digital UPM ReadOnly Api](https://petsure.atlassian.net/wiki/spaces/DIGITAL/pages/938541099) | DIGITAL | Successor read path (App Service, VNet to the UPM secondary) |
+| [Proposal to Merge CSP Middleware API with Digital API](https://petsure.atlassian.net/wiki/spaces/CSP/pages/478642247) | CSP | Future direction |
+| [Archive and Purge of UPM+ Digital Staging Tables (DAPI Write tables)](https://petsure.atlassian.net/wiki/spaces/CS/pages/1048772634) | CS | `DS_*` table housekeeping |
+| [DAPI Investigation](https://petsure.atlassian.net/wiki/spaces/P3/pages/1934721030) | P3 | Request / response traces per endpoint (HTTP verbs) |
+| [CLAPI & DAPI](https://petsure.atlassian.net/wiki/spaces/P3/pages/15309074) | P3 | CLAPI ↔ DAPI integration stories |

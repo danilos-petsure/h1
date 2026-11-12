@@ -1,0 +1,103 @@
+---
+title: AI CAsH — target application architecture (end of Tier 3)
+config:
+  layout: elk
+  elk:
+    nodePlacementStrategy: BRANDES_KOEPF
+    mergeEdges: false
+  theme: base
+  themeVariables:
+    fontFamily: "Segoe UI, Inter, Arial, sans-serif"
+    fontSize: "16px"
+    lineColor: "#4A5568"
+    clusterBkg: "#FAFAF7"
+    clusterBorder: "#A0AEC0"
+    edgeLabelBackground: "#FFFFFF"
+---
+flowchart LR
+  %% Detailed, editable source. The hand-laid presentation view is ai-cash-target-application.svg / .png.
+  classDef new fill:#DCF2E3,stroke:#2F855A,stroke-width:1.5px,color:#173B2A
+  classDef changed fill:#FCE6CC,stroke:#C05621,stroke-width:1.5px,color:#5A2410
+  classDef same fill:#E8EEF8,stroke:#2B4C7E,stroke-width:1.5px,color:#13233D
+  classDef ext fill:#FFFFFF,stroke:#718096,stroke-width:1.5px,color:#2D3748
+  classDef tbc fill:#FFFFFF,stroke:#718096,stroke-width:1.5px,stroke-dasharray:5 4,color:#4A5568
+  classDef removed fill:#F7F7F7,stroke:#C53030,stroke-width:1.5px,stroke-dasharray:4 3,color:#8B2525
+
+  VPMS["Vet practice<br/>VPMS · GapOnly SDK"]:::ext
+
+  subgraph INTAKE["Intake — event-driven"]
+    direction TB
+    VH["<b>VetHub</b><br/>routing context · attachments"]:::changed
+    EB[["<b>Event platform</b><br/>business events<br/><i>Service Bus / Event Grid TBC</i>"]]:::new
+    SPM["Service provider master<br/><i>candidate · TBC</i>"]:::tbc
+  end
+
+  subgraph CLAIM["Claim path"]
+    direction TB
+    COS["<b>COS</b><br/>COS.API on App Service<br/>sagas re-hosted"]:::changed
+    DAPI["DAPI"]:::same
+    UAPI["UPM Dynamics API"]:::same
+    UPM["<b>UPM+</b><br/>AU · Trupanion · NZ"]:::same
+    DCL["<b>Dynamic CLAPI</b><br/>release result · write"]:::changed
+  end
+
+  subgraph ASSESS["Assessment path"]
+    direction TB
+    subgraph HARN["AI CAsH — Clawdia STP as the harness"]
+      direction TB
+      CLW["<b>Harness orchestration</b><br/>Logic Apps + Functions<br/>checkpoints · thresholds · pause / resume"]:::changed
+      CC[("Claim context<br/>enriched · provenance")]:::changed
+      QC[("Question catalogue<br/>per diagnosis family")]:::new
+      ANS["Answerers<br/>SQL · AI agent <i>(LLM TBC)</i>"]:::new
+      DT[("Decision trace")]:::new
+    end
+    subgraph ML["ML environment"]
+      direction TB
+      RT["<b>ML router</b> · ensemble"]:::changed
+      ENR["Enrichment<br/>OCR → attachment classifier<br/>clinical information extraction"]:::new
+      PRED["Prediction<br/>GP model · case linking<br/>specialist models"]:::changed
+      QA["Question answering<br/>diagnosis from Q&A"]:::new
+    end
+    subgraph HUM["People — targeted intervention"]
+      direction TB
+      QFT[("Quick fix tasks")]:::new
+      BAY["<b>Quick fix bays</b> on the Claim Visualiser<br/>answers bay · AI-assisted manual assessment"]:::new
+    end
+  end
+
+  VPMS -->|"① submit"| VH
+  SPM -.-> VH
+  VH ==> EB
+  EB ==>|"② start claim"| COS
+  EB ==>|"② start assessment early"| CLW
+  COS -->|"submit"| DAPI
+  COS -->|"lodge"| UAPI
+  UAPI --> UPM
+  CLW <==>|"③ enrich · predict"| RT
+  RT --- ENR
+  RT --- PRED
+  RT --- QA
+  CLW --- CC
+  CLW --- QC
+  CLW --- ANS
+  CLW --- DT
+  CLW ==>|"④ only what needs a person"| QFT
+  QFT --- BAY
+  BAY ==>|"⑤ answers → resume"| CLW
+  UPM -->|"⑥ request result"| DCL
+  CLW ==>|"⑥ write assessment"| DCL
+  DCL --> UAPI
+
+  subgraph FOOT[" "]
+    direction LR
+    subgraph LEG["Legend"]
+      direction LR
+      L1["New"]:::new
+      L2["Evolved"]:::changed
+      L3["Unchanged"]:::same
+      L4["TBC"]:::tbc
+    end
+    subgraph RET["Retired by Tiers 1–3"]
+      R1["CLAPI · VetHub → COS poller · CATCH / CATCH2<br/>MSMQ logging · COS and VetHub Windows services<br/>Go Tech VMs · COS.API IIS sites"]:::removed
+    end
+  end

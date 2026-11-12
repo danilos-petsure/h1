@@ -56,3 +56,19 @@ Other environments: [UPM+ Trupanion](../11%20-%20Trupanion%20-%20UPMand%20Trupan
 - **BC versions** are not recorded.
 - **Gap-only benefit** call from UPM+ to Dynamic CLAPI is *inferred* from the Earlier Birds flow matrix; route TBC.
 - Whether **UPM+ TPN** calls CLAW-INIT is not documented.
+
+## 7. Confluence pages
+
+Pages found on Confluence on 28 Oct 2026. The *Technical Assessments* (Mar 2026) are per-repo code reviews; they predate 2026_R4.
+
+| Page | Space | What it adds |
+|---|---|---|
+| [UPM+ Prod Environment](https://petsure.atlassian.net/wiki/spaces/UPM/pages/27427402) | UPM | AU servers and SQL Always On |
+| [Cloud NZ UPM+ Prod Environment](https://petsure.atlassian.net/wiki/spaces/UPM/pages/665223169) | UPM | NZ on Azure VMs |
+| [UPM+ v25 – Business Central Server Infrastructure Architecture](https://petsure.atlassian.net/wiki/spaces/PET/pages/2374598673) | PET | BC server architecture (diagram page; title suggests BC v25, to confirm) |
+| [2026 AU UPM+ Disaster Recovery Execution](https://petsure.atlassian.net/wiki/spaces/CS/pages/2327838762) | CS | AU DR test |
+| [2026 Disaster Recovery Execution Plan for Trupanion UPM+ PROD](https://petsure.atlassian.net/wiki/spaces/CS/pages/2109374503) | CS | Confirms the TPN app servers `TP-PRD-BCS-APP1/2`; the DB servers listed are `PS-PRD-BCS-DB01/02` |
+| [2026 NZ UPM+ Disaster Recovery Execution – Prod](https://petsure.atlassian.net/wiki/spaces/CS/pages/1877245954) | CS | NZ DR test |
+| [Archive and Purge of UPM+ Digital Staging Tables (DAPI Write tables)](https://petsure.atlassian.net/wiki/spaces/CS/pages/1048772634) | CS | `DS_*` staging tables |
+| [Prod AU UPM+ BCS upgrade Runsheet](https://petsure.atlassian.net/wiki/spaces/UPM/pages/392724984) | UPM | BC upgrade runsheet |
+| [BCS API for Claims Lodgement](https://petsure.atlassian.net/wiki/spaces/UPM/pages/383188993) | UPM | Claims API exposed by BC |

@@ -55,3 +55,16 @@ Callers in Azure reach it through hub Azure Firewall → ExpressRoute → AirTru
 - **NZ** endpoint and service-instance name are not documented, and no caller is documented.
 - **BC version** of each instance is not recorded.
 - Earlier Birds makes COS a direct caller of *Lodge Claim* (UAPI-E-01).
+
+## 7. Confluence pages
+
+Pages found on Confluence on 28 Oct 2026. The *Technical Assessments* (Mar 2026) are per-repo code reviews; they predate 2026_R4.
+
+| Page | Space | What it adds |
+|---|---|---|
+| [BCS API for Claims Lodgement](https://petsure.atlassian.net/wiki/spaces/UPM/pages/383188993) | UPM | The BC claims API used by Dynamic CLAPI |
+| [How to update Configurations in UPM+ for Lodging, Auto Benefit Response or enabling STP](https://petsure.atlassian.net/wiki/spaces/P3/pages/651296788) | P3 | UPM+ switches for lodging and STP |
+| [CLAW / DynamicCLAPI / DynamicAPI / UPM+RO API Flow and Authentication Mechanism](https://petsure.atlassian.net/wiki/spaces/P3/pages/519012357) | P3 | Basic auth path to the BC API |
+| [UPM+ v25 – Business Central Server Infrastructure Architecture](https://petsure.atlassian.net/wiki/spaces/PET/pages/2374598673) | PET | BC server architecture (diagram page; title suggests BC v25, to confirm) |
+| [UPM+ Prod Environment](https://petsure.atlassian.net/wiki/spaces/UPM/pages/27427402) | UPM | AU servers |
+| [Cloud NZ UPM+ Prod Environment](https://petsure.atlassian.net/wiki/spaces/UPM/pages/665223169) | UPM | NZ servers |

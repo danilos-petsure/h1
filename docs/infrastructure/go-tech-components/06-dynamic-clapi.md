@@ -69,3 +69,19 @@ Base URL `{dcl}` = `https://ps-syd-prod-dynamicclapi-api.petsure.com.au` (infras
 - **Trupanion scope** — only *lodge* is documented for TPN; whether UPM+ TPN calls CLAW-INIT is not documented.
 - **NZ** — PRTG vs code disagreement.
 - Earlier Birds retires *Lodge Claim* (DCL-D-01) and changes the meaning of CLAW-INIT (DCL-E-01).
+
+## 7. Confluence pages
+
+Pages found on Confluence on 28 Oct 2026. The *Technical Assessments* (Mar 2026) are per-repo code reviews; they predate 2026_R4.
+
+| Page | Space | What it adds |
+|---|---|---|
+| [DynamicCLAPI – Technical Assessment](https://petsure.atlassian.net/wiki/spaces/P3/pages/1726971950) | P3 | ASP.NET Core 8 on Windows App Service; Basic + Entra JWT; App Insights; no IaC |
+| [Dynamic CLAPI API Infrastructure Setup](https://petsure.atlassian.net/wiki/spaces/P3/pages/991592517) | P3 | Infrastructure setup |
+| [CLAW Infrastructure](https://petsure.atlassian.net/wiki/spaces/P3/pages/873234445) | P3 | `ps-{env}-asp-claw-dynamicclapi`: public access disabled, private endpoint, Key Vault roles |
+| [CLAW / DynamicCLAPI / DynamicAPI / UPM+RO API Flow and Authentication Mechanism](https://petsure.atlassian.net/wiki/spaces/P3/pages/519012357) | P3 | Flow and auth between CLAW, Dynamic CLAPI and UPM |
+| [TPN: Dynamic CLAPI Endpoint Routing](https://petsure.atlassian.net/wiki/spaces/P3/pages/1406763033) | P3 | Trupanion routing |
+| [Epic 8 – Neg Scenario / Dynamic CLAPI Notification API / Switches / PRTG](https://petsure.atlassian.net/wiki/spaces/P3/pages/678756425) | P3 | Negative scenarios and switches |
+| [[GapOnly Benefit] Dynamic Claims API + COS API for GapOnly Benefit](https://petsure.atlassian.net/wiki/spaces/P3/pages/249233409) | P3 | Gap-only benefit route to COS |
+| [[LODGE] COS services to invoke Dynamic Claims LODGE API](https://petsure.atlassian.net/wiki/spaces/P3/pages/237764665) | P3 | Lodge route from COS |
+| [GOTech Deployments Summary](https://petsure.atlassian.net/wiki/spaces/P3/pages/1736048734) | P3 | .NET 8 → .NET 10 upgrade scheduled in 2026_R5 |

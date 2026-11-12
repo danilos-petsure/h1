@@ -47,3 +47,15 @@ The workspace's dependent resources (storage, registry, Key Vault, App Insights)
 - **Subscription** of the workspace is not confirmed.
 - **Scoring URI, auth mode and model runtime** are not documented.
 - **Sophia Junior model** — whether Claims Automation's model is also served from this workspace is TBC.
+
+## 7. Confluence pages
+
+Pages found on Confluence on 28 Oct 2026. The *Technical Assessments* (Mar 2026) are per-repo code reviews; they predate 2026_R4.
+
+| Page | Space | What it adds |
+|---|---|---|
+| [ClawGP – Technical Assessment](https://petsure.atlassian.net/wiki/spaces/P3/pages/1735098377) | P3 | Python 3.10 / PyTorch on an Azure ML managed online endpoint; key-based auth |
+| [[UAT] Sophia Jr and GP Model Concurrency Setting Change](https://petsure.atlassian.net/wiki/spaces/P3/pages/1094320153) | P3 | Endpoint concurrency settings |
+| [Azure ML Usage and best practices](https://petsure.atlassian.net/wiki/spaces/AIS/pages/1571651604) | AIS | AI Solutions guidance for the workspace |
+| [Sophia Jnr](https://petsure.atlassian.net/wiki/spaces/AC/pages/800358444) | AC | Sophia Junior model (Claims Automation) |
+| [ClaimsAutomation AKS Sophia jr (TStar) disaster recovery procedure](https://petsure.atlassian.net/wiki/spaces/PBIAR/pages/28312858) | PBIAR | Sophia Junior is hosted on AKS, not on this endpoint |
